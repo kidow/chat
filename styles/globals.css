@@ -17,7 +17,8 @@
     @apply resize-none;
   }
   input,
-  textarea {
+  textarea,
+  button {
     @apply focus:outline-none;
   }
   button {

@@ -4,7 +4,6 @@ import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import { useObjectState } from 'services'
 import type { KeyboardEvent } from 'react'
-import Image from 'next/image'
 
 interface State {
   content: string

@@ -2,6 +2,9 @@ import 'styles/globals.css'
 import App from 'next/app'
 import { ErrorInfo } from 'react'
 import { Layout } from 'components'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { RecoilRoot } from 'recoil'
 
 interface Props {}
 interface State {
@@ -22,9 +25,14 @@ class MyApp extends App<Props, {}, State> {
     const {} = this.state
     const { Component, pageProps } = this.props
     return (
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <>
+        <RecoilRoot>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </RecoilRoot>
+        <ToastContainer />
+      </>
     )
   }
 }
