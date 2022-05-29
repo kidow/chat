@@ -11,7 +11,7 @@
 @layer base {
   html,
   body {
-    @apply bg-neutral-100;
+    @apply bg-neutral-100 text-neutral-900;
   }
   textarea {
     @apply resize-none;

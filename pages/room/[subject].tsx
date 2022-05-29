@@ -29,17 +29,15 @@ const RoomSubjectPage: NextPage = () => {
         <div className="absolute top-0 left-0 flex w-full items-center border-b border-neutral-100 bg-white px-5 py-3 font-bold">
           Typescript
         </div>
-        <div className="flex h-[calc(100vh-59px)] flex-col-reverse space-y-4 overflow-y-auto overscroll-contain px-5 pt-[49px] pb-2">
+        <div className="flex h-[calc(100vh-59px)] flex-col space-y-4 overflow-y-auto overscroll-contain px-5 pt-[49px] pb-2">
           {Array.from({ length: 10 }).map((_, key) => (
             <div
               key={key}
-              className={classnames(
-                'flex items-center gap-4 text-sm first:mt-4'
-              )}
+              className={classnames('flex items-center gap-4 text-sm')}
             >
               <img src="https://i.pravatar.cc" alt="" className="h-8 w-8" />
               <div className="flex-1">
-                <div className="flex items-end gap-2">
+                <div className="flex items-center gap-2">
                   <span className="font-medium">wcgo2ling</span>
                   <span className="text-xs text-neutral-400">16:54 오후</span>
                 </div>
@@ -47,6 +45,9 @@ const RoomSubjectPage: NextPage = () => {
               </div>
             </div>
           ))}
+          <div className="flex justify-end">
+            <div className="rounded-lg bg-blue-50 py-2 px-3">w-full</div>
+          </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full border-t border-neutral-100 bg-white px-5 py-3">
           <div className="flex items-end justify-between gap-3">
