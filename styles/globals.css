@@ -13,4 +13,14 @@
   body {
     @apply bg-neutral-100;
   }
+  textarea {
+    @apply resize-none;
+  }
+  input,
+  textarea {
+    @apply focus:outline-none;
+  }
+  button {
+    @apply disabled:cursor-not-allowed;
+  }
 }
