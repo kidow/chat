@@ -1,6 +1,7 @@
 import 'styles/globals.css'
 import App from 'next/app'
 import { ErrorInfo } from 'react'
+import { Layout } from 'components'
 
 interface Props {}
 interface State {
@@ -20,7 +21,11 @@ class MyApp extends App<Props, {}, State> {
   render() {
     const {} = this.state
     const { Component, pageProps } = this.props
-    return <Component {...pageProps} />
+    return (
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    )
   }
 }
 
