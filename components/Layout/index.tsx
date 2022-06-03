@@ -1,21 +1,42 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useMemo } from 'react'
 import type { FC } from 'react'
 import classnames from 'classnames'
 import { useRouter } from 'next/router'
-import { useObjectState } from 'services'
+import { isLoginOpenState, supabase, useObjectState, useUser } from 'services'
 import { Modal } from 'containers'
+import { useRecoilState } from 'recoil'
 
 export interface Props {}
 interface State {
-  isLoginOpen: boolean
+  rooms: Table.Room[]
+  isMyInfoOpen: boolean
 }
 
 const Layout: FC<Props> = ({ children }) => {
-  const [{ isLoginOpen }, setState] = useObjectState<State>({
-    isLoginOpen: false
+  const [{ rooms, isMyInfoOpen }, setState] = useObjectState<State>({
+    rooms: [],
+    isMyInfoOpen: false
   })
-  const { asPath } = useRouter()
+  const [isLoginOpen, setIsLoginOpen] = useRecoilState(isLoginOpenState)
+  const { query } = useRouter()
+  const [user] = useUser()
+
+  const getRooms = async () => {
+    const { data, error } = await supabase.from<Table.Room>('rooms').select('*')
+    if (error) {
+      console.error(error)
+      return
+    }
+    setState({ rooms: data })
+  }
+
+  const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
+
+  useEffect(() => {
+    getRooms()
+  }, [])
   return (
     <>
       <div className="container mx-auto px-5">
@@ -25,23 +46,35 @@ const Layout: FC<Props> = ({ children }) => {
               <Link href="/">
                 <a>Coddee</a>
               </Link>
-              <button
-                className="text-sm"
-                onClick={() => setState({ isLoginOpen: true })}
-              >
-                로그인
-              </button>
+              {isLoggedIn ? (
+                <img
+                  src={user?.avatar_url}
+                  alt=""
+                  className="h-7 w-7 cursor-pointer rounded-full"
+                  onClick={() => setState({ isMyInfoOpen: true })}
+                />
+              ) : (
+                <button
+                  className="text-sm"
+                  onClick={() => setIsLoginOpen(true)}
+                >
+                  로그인
+                </button>
+              )}
             </div>
             <div className="max-h-[calc(100vh-48px)] divide-y divide-neutral-100 overflow-auto overscroll-contain">
-              {Array.from({ length: 10 }).map((_, key) => (
-                <Link key={key} href={`/room/1`}>
+              {rooms.map((item) => (
+                <Link key={item.id} href={`/room/${item.name}`}>
                   <a>
                     <div
                       className={classnames(
-                        'flex items-center justify-between py-3 px-5'
+                        'group flex items-center justify-between py-3 px-5',
+                        item.name === query.name
+                          ? 'bg-blue-100'
+                          : 'hover:bg-blue-50'
                       )}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <span className="flex flex-col justify-center rounded-full border border-neutral-100">
                           <Image
                             src="https:/i.pravatar.cc"
@@ -51,7 +84,15 @@ const Layout: FC<Props> = ({ children }) => {
                             className="rounded-full"
                           />
                         </span>
-                        <span>Python</span>
+                        <span
+                          className={classnames(
+                            item.name === query.name
+                              ? 'text-blue-500'
+                              : 'text-neutral-700 group-hover:text-neutral-900'
+                          )}
+                        >
+                          {item.name}
+                        </span>
                       </div>
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-sm text-white">
                         1
@@ -68,9 +109,10 @@ const Layout: FC<Props> = ({ children }) => {
         </div>
       </div>
 
-      <Modal.Login
-        isOpen={isLoginOpen}
-        onClose={() => setState({ isLoginOpen: false })}
+      <Modal.Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <Modal.MyInfo
+        isOpen={isMyInfoOpen}
+        onClose={() => setState({ isMyInfoOpen: false })}
       />
     </>
   )

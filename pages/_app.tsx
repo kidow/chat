@@ -1,7 +1,7 @@
 import 'styles/globals.css'
 import App from 'next/app'
 import { ErrorInfo } from 'react'
-import { Layout } from 'components'
+import { Auth, Backdrop, Layout } from 'components'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { RecoilRoot } from 'recoil'
@@ -27,9 +27,12 @@ class MyApp extends App<Props, {}, State> {
     return (
       <>
         <RecoilRoot>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <Auth>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </Auth>
+          <Backdrop />
         </RecoilRoot>
         <ToastContainer />
       </>

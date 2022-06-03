@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
+import { useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil'
+import { userState, backdropState } from 'services'
+import type { SetterOrUpdater, Resetter } from 'recoil'
 
 export function useObjectState<T>(
   initialObject: T
@@ -52,4 +55,21 @@ export function useObjectState<T>(
   }, [state])
 
   return [state, onChange, onEventChange, resetState]
+}
+
+export const useUser = (): [
+  IUser | null,
+  SetterOrUpdater<IUser | null>,
+  Resetter
+] => {
+  const user = useRecoilValue(userState)
+  const setUser = useSetRecoilState(userState)
+  const resetUser = useResetRecoilState(userState)
+  return [user, setUser, resetUser]
+}
+
+export const useBackdrop = () => {
+  const setIsOpen = useSetRecoilState(backdropState)
+  const backdrop = (boolean: boolean) => setIsOpen(boolean)
+  return backdrop
 }

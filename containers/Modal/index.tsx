@@ -4,10 +4,12 @@ import classnames from 'classnames'
 import { Portal } from 'components'
 
 import LoginModal from './Login'
+import MyInfoModal from './MyInfo'
 
 interface Props extends ModalProps {}
 interface IModal extends FC<Props> {
   Login: typeof LoginModal
+  MyInfo: typeof MyInfoModal
 }
 interface State {}
 
@@ -90,5 +92,6 @@ const Modal: IModal = ({
 }
 
 Modal.Login = LoginModal
+Modal.MyInfo = MyInfoModal
 
 export default Modal
