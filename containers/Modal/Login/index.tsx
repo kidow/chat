@@ -21,15 +21,18 @@ const LoginModal: FC<Props> = ({ onClose }) => {
     <Modal
       isOpen={isLoginOpen}
       onClose={onClose}
-      title="환영합니다!"
+      title="로그인하기"
+      description="커디를 소개합니다!"
       maxWidth="max-w-xs"
+      footer={
+        <div className="flex justify-center">
+          <Button onClick={onLogin} shape="outlined" size="sm">
+            깃허브로 로그인
+          </Button>
+        </div>
+      }
     >
-      <div className="flex items-center justify-between">
-        <span className="text-sm">로그인을 해주세요.</span>
-        <Button onClick={onLogin} shape="outlined" size="sm">
-          깃허브로 로그인
-        </Button>
-      </div>
+      asdasd
     </Modal>
   )
 }

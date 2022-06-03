@@ -31,7 +31,10 @@
     "typescript": "4.7.2"
   },
   "eslintConfig": {
-    "extends": "next",
+    "extends": [
+      "next",
+      "react-hooks"
+    ],
     "rules": {
       "react-hooks/exhaustive-deps": "off",
       "react-hooks/rules-of-hooks": "off",

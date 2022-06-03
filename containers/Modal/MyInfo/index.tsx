@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Modal } from 'containers'
 import classnames from 'classnames'
-import { useObjectState } from 'services'
+import { supabase, useObjectState, useUser } from 'services'
 
 export interface Props extends ModalProps {}
 interface State {
@@ -11,12 +11,23 @@ interface State {
 const MyInfoModal: FC<Props> = ({ isOpen, onClose }) => {
   if (!isOpen) return null
   const [{ tab }, setState] = useObjectState<State>({ tab: '' })
+  const [user, , resetUser] = useUser()
+
+  const onLogout = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error(error)
+      return
+    }
+    resetUser()
+    onClose()
+  }
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="max-w-5xl"
-      title="내 정보"
+      title={user?.email || '내 정보'}
       padding={false}
     >
       <div className="flex divide-x divide-neutral-200">
@@ -29,7 +40,14 @@ const MyInfoModal: FC<Props> = ({ isOpen, onClose }) => {
           </ul>
           <hr className="my-4" />
           <ul>
-            <li>로그아웃</li>
+            <li>
+              <span
+                onClick={onLogout}
+                className="cursor-pointer text-neutral-400 hover:text-neutral-900"
+              >
+                로그아웃
+              </span>
+            </li>
           </ul>
         </div>
         <div className="flex-1 p-4">ㄴㄴㄴ</div>

@@ -5,11 +5,13 @@ import { Portal } from 'components'
 
 import LoginModal from './Login'
 import MyInfoModal from './MyInfo'
+import AgreeToTermsModal from './AgreeToTerms'
 
 interface Props extends ModalProps {}
 interface IModal extends FC<Props> {
   Login: typeof LoginModal
   MyInfo: typeof MyInfoModal
+  AgreeToTerms: typeof AgreeToTermsModal
 }
 interface State {}
 
@@ -93,5 +95,6 @@ const Modal: IModal = ({
 
 Modal.Login = LoginModal
 Modal.MyInfo = MyInfoModal
+Modal.AgreeToTerms = AgreeToTermsModal
 
 export default Modal

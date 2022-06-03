@@ -51,7 +51,7 @@ const RoomNamePage: NextPage = () => {
     setState({ content: '' })
   }
 
-  const getRoom = async () => {
+  const get = async () => {
     setState({ isLoading: true })
     const { data, error } = await supabase
       .from<Table.Chat>('chats')
@@ -69,7 +69,7 @@ const RoomNamePage: NextPage = () => {
   const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
 
   useEffect(() => {
-    getRoom()
+    get()
   }, [asPath])
   return (
     <>
