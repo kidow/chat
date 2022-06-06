@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect } from 'react'
 import type { FC } from 'react'
@@ -40,18 +39,17 @@ const Menu: FC<Props> = () => {
                 item.name === query.name ? 'bg-blue-100' : 'hover:bg-blue-50'
               )}
             >
-              <div className="flex items-center gap-2">
-                <span className="flex flex-col justify-center rounded-full border border-neutral-100">
-                  <Image
-                    src="https:/i.pravatar.cc"
+              <div className="flex items-center gap-3">
+                <span className="flex flex-col justify-center border rounded-full border-neutral-100">
+                  <img
+                    src={item.thumbnail_url}
                     alt=""
-                    height={24}
-                    width={24}
-                    className="rounded-full"
+                    className="w-6 h-6 rounded"
                   />
                 </span>
                 <span
                   className={classnames(
+                    'font-semibold',
                     item.name === query.name
                       ? 'text-blue-500'
                       : 'text-neutral-700 group-hover:text-neutral-900'
@@ -60,7 +58,7 @@ const Menu: FC<Props> = () => {
                   {item.name}
                 </span>
               </div>
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-sm text-white">
+              <span className="flex items-center justify-center w-6 h-6 text-sm text-white bg-red-500 rounded-full">
                 1
               </span>
             </div>

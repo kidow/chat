@@ -11,6 +11,7 @@ namespace Table {
     id: number
     name: string
     created_at: string
+    thumbnail_url: string
   }
 
   interface User {
