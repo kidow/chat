@@ -7,6 +7,7 @@ import { useEffect, useMemo } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
+import { SEO } from 'components'
 
 interface State {
   content: string
@@ -52,11 +53,12 @@ const RoomNamePage: NextPage = () => {
   }
 
   const get = async () => {
+    if (typeof query.name !== 'string') return
     setState({ isLoading: true })
     const { data, error } = await supabase
       .from<Table.Chat>('chats')
       .select(`*`)
-      .eq('room_name', query.name as string)
+      .eq('room_name', query.name)
     if (error) {
       console.error(error)
       setState({ isLoading: false, chats: [] })
@@ -73,6 +75,7 @@ const RoomNamePage: NextPage = () => {
   }, [asPath])
   return (
     <>
+      <SEO title={typeof query.name === 'string' ? query.name : ''} />
       <section className="relative h-full">
         <div className="absolute top-0 left-0 flex w-full items-center border-b border-neutral-100 bg-white px-5 py-3 font-bold">
           {query.name}
@@ -94,13 +97,13 @@ const RoomNamePage: NextPage = () => {
             </div>
           ))}
           <div className="flex justify-end">
-            <div className="rounded-lg bg-blue-50 py-2 px-3">w-full</div>
+            <div className="rounded-lg bg-blue-50 px-3 py-2">w-full</div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full border-t border-neutral-100 bg-white px-5 py-3">
           <div className="flex items-end justify-between gap-3">
             <TextareaAutosize
-              className="flex-1 rounded-lg border border-neutral-200 py-1 px-2"
+              className="flex-1 rounded-lg border border-neutral-200 px-2 py-1"
               spellCheck={false}
               value={content}
               name="content"

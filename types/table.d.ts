@@ -22,5 +22,6 @@ namespace Table {
     avatar_url: string
     nickname: string
     is_agree_to_terms: boolean
+    interested_room: string[]
   }
 }

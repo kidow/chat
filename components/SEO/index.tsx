@@ -20,7 +20,7 @@ const SEO: FC<Props> = ({
   noSEO = false
 }) => {
   const { asPath } = useRouter()
-  const TITLE = title ? `${title} - kidow` : 'kidow'
+  const TITLE = title ? `${title} - 커디` : '커디'
   const URL = BASE_URL + decodeURI(asPath)
   if (ldJson) ldJson['@context'] = 'https://schema.org'
   if (noSEO)
