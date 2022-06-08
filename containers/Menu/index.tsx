@@ -29,7 +29,7 @@ const Menu: FC<Props> = () => {
     getRooms()
   }, [])
   return (
-    <div className="max-h-[calc(100vh-148px)] divide-y divide-neutral-100 overflow-auto overscroll-contain">
+    <div className="h-[calc(100vh-148px)] divide-y divide-neutral-100 overflow-auto overscroll-contain">
       {rooms.map((item) => (
         <Link key={item.id} href={`/room/${item.name}`}>
           <a>

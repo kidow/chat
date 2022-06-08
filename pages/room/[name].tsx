@@ -3,15 +3,16 @@ import { ArrowSmUpIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import { isLoginOpenState, supabase, useObjectState, useUser } from 'services'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
 import { SEO } from 'components'
+import dayjs from 'dayjs'
 
 interface State {
   content: string
-  chats: Table.Chat[]
+  chats: Array<Table.Chat & { user: Table.User }>
   isLoading: boolean
 }
 
@@ -55,8 +56,13 @@ const RoomNamePage: NextPage = () => {
   const get = useCallback(async () => {
     setState({ isLoading: true })
     const { data, error } = await supabase
-      .from<Table.Chat>('chats')
-      .select(`*`)
+      .from<Table.Chat & { user: Table.User }>('chats')
+      .select(
+        `
+        *,
+        user:user_id (*)
+      `
+      )
       .eq('room_name', query.name as string)
     if (error) {
       console.error(error)
@@ -90,31 +96,51 @@ const RoomNamePage: NextPage = () => {
   return (
     <>
       <SEO title={typeof query.name === 'string' ? query.name : ''} />
-      <section className="relative h-full">
-        <div className="absolute top-0 left-0 flex items-center w-full px-5 py-3 font-bold bg-white border-b border-neutral-100">
+      <section className="flex flex-col h-full">
+        <div className="flex items-center w-full px-5 py-3 font-bold bg-white border-b border-neutral-100">
           {query.name}
         </div>
-        <div className="flex h-[calc(100vh-59px)] flex-col space-y-3 overflow-y-auto overscroll-contain px-5 pt-[49px] pb-2">
-          {chats.map((item) => (
-            <div
-              key={item.id}
-              className={classnames('flex items-center gap-4 text-sm')}
-            >
-              <img src="https://i.pravatar.cc" alt="" className="w-8 h-8" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">wcgo2ling</span>
-                  <span className="text-xs text-neutral-400">16:54 오후</span>
+        <div className="flex flex-col-reverse flex-1 px-5 py-2 space-y-3 space-y-reverse overflow-y-auto overscroll-contain">
+          {chats.map((item, key) => (
+            <Fragment key={item.id}>
+              {item.user_id === user?.id ? (
+                <div className="flex justify-end">
+                  <div className="px-3 py-2 rounded-lg bg-blue-50">
+                    {item.content}
+                  </div>
                 </div>
-                <div>content</div>
-              </div>
-            </div>
+              ) : (
+                <div className="flex items-center gap-4 text-sm">
+                  <img src={item.user.avatar_url} alt="" className="w-8 h-8" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {item.user.nickname ||
+                          item.user.email.slice(
+                            0,
+                            item.user.email.indexOf('@')
+                          )}
+                      </span>
+                      <span className="text-xs text-neutral-400">
+                        {dayjs(item.created_at).format('HH:mm')}
+                      </span>
+                    </div>
+                    <div>{item.content}</div>
+                  </div>
+                </div>
+              )}
+              {(dayjs(item.created_at).diff(chats[key + 1]?.created_at) > 0 ||
+                key === chats.length - 1) && (
+                <div className="relative z-10 flex items-center justify-center pb-3 text-xs before:absolute before:h-px before:w-full before:bg-neutral-200">
+                  <div className="absolute bottom-1/2 left-1/2 z-10 translate-y-[calc(50%-6px)] -translate-x-[46px] select-none bg-white px-5 text-neutral-400">
+                    {dayjs(item.created_at).format('MM월 DD일')}
+                  </div>
+                </div>
+              )}
+            </Fragment>
           ))}
-          <div className="flex justify-end">
-            <div className="px-3 py-2 rounded-lg bg-blue-50">w-full</div>
-          </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full px-5 py-3 bg-white border-t border-neutral-100">
+        <div className="w-full px-5 py-3 bg-white border-t border-neutral-100">
           <div className="flex items-end justify-between gap-3">
             <TextareaAutosize
               className="flex-1 px-2 py-1 border rounded-lg border-neutral-200"

@@ -6,6 +6,7 @@ import { Layout, Auth } from 'containers'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { RecoilRoot } from 'recoil'
+import 'dayjs/locale/ko'
 
 interface Props {}
 interface State {

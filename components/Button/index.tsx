@@ -27,7 +27,7 @@ const Button: FC<Props> = ({
     <button
       {...props}
       className={classnames(
-        'select-none font-medium leading-6 transition duration-150 ease-in-out disabled:cursor-not-allowed',
+        'group select-none font-medium leading-6 transition duration-150 ease-in-out disabled:cursor-not-allowed',
         {
           'inline-flex items-center justify-center': loading,
           'hover:brightness-105 active:brightness-90': !loading && !disabled,
@@ -66,6 +66,7 @@ const Button: FC<Props> = ({
         <Spinner
           className={classnames('-ml-1 mr-3 h-5 w-5', {
             'text-white': shape === 'contained',
+            'group-hover:text-white': shape === 'outlined',
             'text-gray-900':
               (shape === 'outlined' && !theme) || shape === 'text',
             'text-blue-500': shape === 'outlined' && theme === 'primary',
