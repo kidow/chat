@@ -3,7 +3,7 @@ import { ArrowSmUpIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import { isLoginOpenState, supabase, useObjectState, useUser } from 'services'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
@@ -24,7 +24,7 @@ const RoomNamePage: NextPage = () => {
     })
   const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
   const [user] = useUser()
-  const { asPath, query } = useRouter()
+  const { asPath, query, replace } = useRouter()
 
   const onEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key !== 'Enter') return
@@ -52,13 +52,12 @@ const RoomNamePage: NextPage = () => {
     setState({ content: '' })
   }
 
-  const get = async () => {
-    if (typeof query.name !== 'string') return
+  const get = useCallback(async () => {
     setState({ isLoading: true })
     const { data, error } = await supabase
       .from<Table.Chat>('chats')
       .select(`*`)
-      .eq('room_name', query.name)
+      .eq('room_name', query.name as string)
     if (error) {
       console.error(error)
       setState({ isLoading: false, chats: [] })
@@ -66,18 +65,33 @@ const RoomNamePage: NextPage = () => {
     }
     console.log('data', data)
     setState({ chats: data, isLoading: false })
-  }
+  }, [asPath])
+
+  const validateRoom = useCallback(async () => {
+    if (typeof query.name !== 'string') return
+    const { error } = await supabase
+      .from<Table.Room>('rooms')
+      .select('*')
+      .eq('name', query.name)
+      .single()
+    if (error) {
+      console.error(error)
+      replace('/')
+      return
+    }
+    get()
+  }, [asPath])
 
   const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
 
   useEffect(() => {
-    get()
+    validateRoom()
   }, [asPath])
   return (
     <>
       <SEO title={typeof query.name === 'string' ? query.name : ''} />
       <section className="relative h-full">
-        <div className="absolute top-0 left-0 flex w-full items-center border-b border-neutral-100 bg-white px-5 py-3 font-bold">
+        <div className="absolute top-0 left-0 flex items-center w-full px-5 py-3 font-bold bg-white border-b border-neutral-100">
           {query.name}
         </div>
         <div className="flex h-[calc(100vh-59px)] flex-col space-y-3 overflow-y-auto overscroll-contain px-5 pt-[49px] pb-2">
@@ -86,7 +100,7 @@ const RoomNamePage: NextPage = () => {
               key={item.id}
               className={classnames('flex items-center gap-4 text-sm')}
             >
-              <img src="https://i.pravatar.cc" alt="" className="h-8 w-8" />
+              <img src="https://i.pravatar.cc" alt="" className="w-8 h-8" />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">wcgo2ling</span>
@@ -97,18 +111,19 @@ const RoomNamePage: NextPage = () => {
             </div>
           ))}
           <div className="flex justify-end">
-            <div className="rounded-lg bg-blue-50 px-3 py-2">w-full</div>
+            <div className="px-3 py-2 rounded-lg bg-blue-50">w-full</div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full border-t border-neutral-100 bg-white px-5 py-3">
+        <div className="absolute bottom-0 left-0 w-full px-5 py-3 bg-white border-t border-neutral-100">
           <div className="flex items-end justify-between gap-3">
             <TextareaAutosize
-              className="flex-1 rounded-lg border border-neutral-200 px-2 py-1"
+              className="flex-1 px-2 py-1 border rounded-lg border-neutral-200"
               spellCheck={false}
               value={content}
               name="content"
               onChange={onChange}
               onKeyDown={onEnter}
+              readOnly={!isLoggedIn}
               onClick={() => {
                 if (!isLoggedIn) setIsLoginOpen(true)
               }}
@@ -121,7 +136,7 @@ const RoomNamePage: NextPage = () => {
               )}
               onClick={onCreate}
             >
-              <ArrowSmUpIcon className="h-5 w-5 text-neutral-50" />
+              <ArrowSmUpIcon className="w-5 h-5 text-neutral-50" />
             </button>
           </div>
         </div>
