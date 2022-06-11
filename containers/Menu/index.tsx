@@ -17,11 +17,15 @@ const Menu: FC<Props> = () => {
   const { query } = useRouter()
 
   const getRooms = async () => {
-    const { data, error } = await supabase.from<Table.Room>('rooms').select('*')
+    const { data, error } = await supabase.from<Table.Room>('rooms').select(`
+      *,
+      chats (*)
+    `)
     if (error) {
       console.error(error)
       return
     }
+    console.log('data', data)
     setState({ rooms: data })
   }
 
@@ -49,7 +53,7 @@ const Menu: FC<Props> = () => {
                 </span>
                 <span
                   className={classnames(
-                    'font-semibold',
+                    'truncate font-semibold',
                     item.name === query.name
                       ? 'text-blue-500'
                       : 'text-neutral-700 group-hover:text-neutral-900'
@@ -58,9 +62,7 @@ const Menu: FC<Props> = () => {
                   {item.name}
                 </span>
               </div>
-              <span className="flex items-center justify-center w-6 h-6 text-sm text-white bg-red-500 rounded-full">
-                1
-              </span>
+              <span className="flex items-center justify-center w-2 h-2 text-sm text-white bg-red-300 rounded-full group-hover:bg-red-500" />
             </div>
           </a>
         </Link>

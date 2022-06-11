@@ -12,7 +12,7 @@ const Layout: FC<Props> = ({ children }) => {
           <div className="max-h-screen min-h-screen bg-white w-80 border-x border-x-neutral-200">
             <Header />
             <Menu />
-            <div className="h-[100px] bg-white">
+            <div className="h-[100px] border-t border-neutral-200 bg-white">
               <div className="flex items-center justify-center h-full text-sm text-neutral-400">
                 © {new Date().getFullYear()} Coddee. All right reserved.
               </div>

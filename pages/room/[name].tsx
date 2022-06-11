@@ -7,21 +7,23 @@ import { useCallback, useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
-import { SEO } from 'components'
+import { SEO, Spinner } from 'components'
 import dayjs from 'dayjs'
 
 interface State {
   content: string
   chats: Array<Table.Chat & { user: Table.User }>
   isLoading: boolean
+  room_id: number
 }
 
 const RoomNamePage: NextPage = () => {
-  const [{ content, chats, isLoading }, setState, onChange] =
+  const [{ content, chats, isLoading, room_id }, setState, onChange] =
     useObjectState<State>({
       content: '',
       chats: [],
-      isLoading: false
+      isLoading: false,
+      room_id: 0
     })
   const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
   const [user] = useUser()
@@ -31,20 +33,21 @@ const RoomNamePage: NextPage = () => {
     if (e.key !== 'Enter') return
     if (!e.shiftKey) {
       e.preventDefault()
-      onCreate()
+      createChat()
     }
   }
 
-  const onCreate = async () => {
+  const createChat = async () => {
     if (!isLoggedIn) {
       setIsLoginOpen(true)
       return
     }
-    if (!content) return
+    if (!content || !room_id) return
     const { error } = await supabase.from<Table.Chat>('chats').insert({
       room_name: query.name as string,
       content,
-      user_id: user?.id
+      user_id: user?.id,
+      room_id
     })
     if (error) {
       console.error(error)
@@ -69,7 +72,6 @@ const RoomNamePage: NextPage = () => {
       setState({ isLoading: false, chats: [] })
       return
     }
-    console.log('data', data)
     setState({ chats: data, isLoading: false })
   }, [asPath])
 
@@ -88,10 +90,26 @@ const RoomNamePage: NextPage = () => {
     get()
   }, [asPath])
 
+  const getRoomId = useCallback(async () => {
+    if (typeof query.name !== 'string') return
+    const { data, error } = await supabase
+      .from<Table.Room>('rooms')
+      .select('id')
+      .eq('name', query.name)
+      .single()
+    if (error) {
+      console.log('getRoomId error')
+      console.error(error)
+      return
+    }
+    setState({ room_id: data.id })
+  }, [asPath])
+
   const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
 
   useEffect(() => {
     validateRoom()
+    getRoomId()
   }, [asPath])
   return (
     <>
@@ -101,44 +119,54 @@ const RoomNamePage: NextPage = () => {
           {query.name}
         </div>
         <div className="flex flex-col-reverse flex-1 px-5 py-2 space-y-3 space-y-reverse overflow-y-auto overscroll-contain">
-          {chats.map((item, key) => (
-            <Fragment key={item.id}>
-              {item.user_id === user?.id ? (
-                <div className="flex justify-end">
-                  <div className="px-3 py-2 rounded-lg bg-blue-50">
-                    {item.content}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-4 text-sm">
-                  <img src={item.user.avatar_url} alt="" className="w-8 h-8" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {item.user.nickname ||
-                          item.user.email.slice(
-                            0,
-                            item.user.email.indexOf('@')
-                          )}
-                      </span>
-                      <span className="text-xs text-neutral-400">
-                        {dayjs(item.created_at).format('HH:mm')}
-                      </span>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Spinner className="w-5 h-5 text-neutral-800" />
+            </div>
+          ) : (
+            chats.map((item, key) => (
+              <Fragment key={item.id}>
+                {item.user_id === user?.id ? (
+                  <div className="flex justify-end">
+                    <div className="px-3 py-2 rounded-lg bg-blue-50">
+                      {item.content}
                     </div>
-                    <div>{item.content}</div>
                   </div>
-                </div>
-              )}
-              {(dayjs(item.created_at).diff(chats[key + 1]?.created_at) > 0 ||
-                key === chats.length - 1) && (
-                <div className="relative z-10 flex items-center justify-center pb-3 text-xs before:absolute before:h-px before:w-full before:bg-neutral-200">
-                  <div className="absolute bottom-1/2 left-1/2 z-10 translate-y-[calc(50%-6px)] -translate-x-[46px] select-none bg-white px-5 text-neutral-400">
-                    {dayjs(item.created_at).format('MM월 DD일')}
+                ) : (
+                  <div className="flex items-center gap-4 text-sm">
+                    <img
+                      src={item.user.avatar_url}
+                      alt=""
+                      className="w-8 h-8 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium cursor-pointer">
+                          {item.user.nickname ||
+                            item.user.email.slice(
+                              0,
+                              item.user.email.indexOf('@')
+                            )}
+                        </span>
+                        <span className="text-xs text-neutral-400">
+                          {dayjs(item.created_at).format('HH:mm')}
+                        </span>
+                      </div>
+                      <div>{item.content}</div>
+                    </div>
                   </div>
-                </div>
-              )}
-            </Fragment>
-          ))}
+                )}
+                {(dayjs(item.created_at).diff(chats[key + 1]?.created_at) > 0 ||
+                  key === chats.length - 1) && (
+                  <div className="relative z-10 flex items-center justify-center pb-3 text-xs before:absolute before:h-px before:w-full before:bg-neutral-200">
+                    <div className="absolute bottom-1/2 left-1/2 z-10 translate-y-[calc(50%-6px)] -translate-x-[46px] select-none bg-white px-5 text-neutral-400">
+                      {dayjs(item.created_at).format('MM월 DD일')}
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            ))
+          )}
         </div>
         <div className="w-full px-5 py-3 bg-white border-t border-neutral-100">
           <div className="flex items-end justify-between gap-3">
@@ -160,7 +188,7 @@ const RoomNamePage: NextPage = () => {
                 !!content ? 'bg-blue-500' : 'bg-neutral-400',
                 { 'cursor-not-allowed': !content || !isLoggedIn }
               )}
-              onClick={onCreate}
+              onClick={createChat}
             >
               <ArrowSmUpIcon className="w-5 h-5 text-neutral-50" />
             </button>

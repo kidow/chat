@@ -5,6 +5,7 @@ namespace Table {
     created_at: string
     room_name: string
     user_id: string
+    room_id: number
   }
 
   interface Room {
