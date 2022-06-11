@@ -2,37 +2,36 @@ import type { NextPage } from 'next'
 import { ArrowSmUpIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
-import { isLoginOpenState, supabase, useObjectState, useUser } from 'services'
+import {
+  isLoginOpenState,
+  roomListState,
+  supabase,
+  useObjectState,
+  useUser
+} from 'services'
 import { useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
 import { SEO, Spinner } from 'components'
 import dayjs from 'dayjs'
-import type { SupabaseRealtimePayload } from '@supabase/supabase-js'
 
 interface State {
   content: string
-  list: Array<Table.Chat & { user: Table.User }>
-  isLoading: boolean
   roomId: number
   isSubmitting: boolean
 }
 
 const RoomNamePage: NextPage = () => {
-  const [
-    { content, list, isLoading, roomId, isSubmitting },
-    setState,
-    onChange
-  ] = useObjectState<State>({
-    content: '',
-    list: [],
-    isLoading: true,
-    roomId: 0,
-    isSubmitting: false
-  })
+  const [{ content, roomId, isSubmitting }, setState, onChange] =
+    useObjectState<State>({
+      content: '',
+      roomId: 0,
+      isSubmitting: false
+    })
   const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
   const [user] = useUser()
+  const roomList = useRecoilValue(roomListState)
   const { asPath, query, replace } = useRouter()
 
   const onEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -58,47 +57,12 @@ const RoomNamePage: NextPage = () => {
       room_id: roomId
     })
     if (error) {
-      console.log('createChat')
+      console.log('createChat error')
       console.error(error)
       setState({ isSubmitting: false })
       return
     }
     setState({ content: '', isSubmitting: false })
-  }
-
-  const getChats = async () => {
-    setState({ isLoading: true, list: [] })
-    const { data, error } = await supabase
-      .from<Table.Chat & { user: Table.User }>('chats')
-      .select(
-        `
-        *,
-        user:user_id (*)
-      `
-      )
-      .eq('room_name', query.name as string)
-      .order('created_at', { ascending: false })
-    if (error) {
-      console.log('getChats error')
-      console.error(error)
-      setState({ isLoading: false, list: [] })
-      return
-    }
-    setState({ list: data, isLoading: false })
-  }
-
-  const insertChat = async (payload: SupabaseRealtimePayload<Table.Chat>) => {
-    const { data, error } = await supabase
-      .from<Table.User>('users')
-      .select('*')
-      .eq('id', payload.new.user_id)
-      .single()
-    if (error) {
-      console.log('get chat realtime')
-      console.error(error)
-      return
-    }
-    setState({ list: [{ ...payload.new, user: data }, ...list] })
   }
 
   const validateRoom = async () => {
@@ -113,7 +77,6 @@ const RoomNamePage: NextPage = () => {
       replace('/')
       return
     }
-    getChats()
   }
 
   const getRoomId = async () => {
@@ -133,12 +96,17 @@ const RoomNamePage: NextPage = () => {
 
   const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
 
+  const chatList: Array<Table.Chat & { user: Table.User }> = useMemo(() => {
+    if (typeof query.name !== 'string' || !query.name) return []
+    const room = roomList.find((room) => room.name === query.name)
+    if (!room) return []
+    return room.chats
+  }, [query.name, roomList])
+
   useEffect(() => {
     validateRoom()
     getRoomId()
   }, [asPath])
-
-  useEffect(() => {}, [query.name])
   return (
     <>
       <SEO title={typeof query.name === 'string' ? query.name : ''} />
@@ -147,12 +115,12 @@ const RoomNamePage: NextPage = () => {
           {query.name}
         </div>
         <div className="flex flex-1 flex-col-reverse space-y-3 space-y-reverse overflow-y-auto overscroll-contain px-5 py-2">
-          {isLoading ? (
+          {!roomList.length ? (
             <div className="flex h-full items-center justify-center">
               <Spinner className="h-5 w-5 text-neutral-800" />
             </div>
-          ) : !!list.length ? (
-            list.map((item, key) => (
+          ) : !!chatList.length ? (
+            chatList.map((item, key, arr) => (
               <Fragment key={item.id}>
                 {item.user_id === user?.id ? (
                   <div className="flex justify-end">
@@ -184,11 +152,11 @@ const RoomNamePage: NextPage = () => {
                     </div>
                   </div>
                 )}
-                {(dayjs(item.created_at).diff(
-                  list[key + 1]?.created_at,
+                {(!!dayjs(item.created_at).diff(
+                  arr[key + 1]?.created_at,
                   'day'
-                ) > 0 ||
-                  key === list.length - 1) && (
+                ) ||
+                  key === chatList.length - 1) && (
                   <div className="relative z-10 flex items-center justify-center pb-3 text-xs before:absolute before:h-px before:w-full before:bg-neutral-200">
                     <div className="absolute bottom-1/2 left-1/2 z-10 translate-y-[calc(50%-6px)] -translate-x-[46px] select-none bg-white px-5 text-neutral-400">
                       {dayjs(item.created_at).format('MM월 DD일')}

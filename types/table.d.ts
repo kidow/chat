@@ -6,6 +6,7 @@ namespace Table {
     room_name: string
     user_id: string
     room_id: number
+    isNotChecked?: boolean
   }
 
   interface Room {
@@ -14,7 +15,6 @@ namespace Table {
     created_at: string
     thumbnail_url: string
     lastChat?: string
-    isLastChatNotChecked?: boolean
   }
 
   interface User {
