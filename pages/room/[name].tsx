@@ -3,28 +3,34 @@ import { ArrowSmUpIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import { isLoginOpenState, supabase, useObjectState, useUser } from 'services'
-import { useCallback, useEffect, useMemo, Fragment } from 'react'
+import { useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
 import { SEO, Spinner } from 'components'
 import dayjs from 'dayjs'
+import type { SupabaseRealtimePayload } from '@supabase/supabase-js'
 
 interface State {
   content: string
-  chats: Array<Table.Chat & { user: Table.User }>
+  list: Array<Table.Chat & { user: Table.User }>
   isLoading: boolean
-  room_id: number
+  roomId: number
+  isSubmitting: boolean
 }
 
 const RoomNamePage: NextPage = () => {
-  const [{ content, chats, isLoading, room_id }, setState, onChange] =
-    useObjectState<State>({
-      content: '',
-      chats: [],
-      isLoading: false,
-      room_id: 0
-    })
+  const [
+    { content, list, isLoading, roomId, isSubmitting },
+    setState,
+    onChange
+  ] = useObjectState<State>({
+    content: '',
+    list: [],
+    isLoading: true,
+    roomId: 0,
+    isSubmitting: false
+  })
   const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
   const [user] = useUser()
   const { asPath, query, replace } = useRouter()
@@ -38,26 +44,30 @@ const RoomNamePage: NextPage = () => {
   }
 
   const createChat = async () => {
+    if (isSubmitting) return
     if (!isLoggedIn) {
       setIsLoginOpen(true)
       return
     }
-    if (!content || !room_id) return
+    if (!content || !roomId) return
+    setState({ isSubmitting: true })
     const { error } = await supabase.from<Table.Chat>('chats').insert({
       room_name: query.name as string,
       content,
       user_id: user?.id,
-      room_id
+      room_id: roomId
     })
     if (error) {
+      console.log('createChat')
       console.error(error)
+      setState({ isSubmitting: false })
       return
     }
-    setState({ content: '' })
+    setState({ content: '', isSubmitting: false })
   }
 
-  const get = useCallback(async () => {
-    setState({ isLoading: true })
+  const getChats = async () => {
+    setState({ isLoading: true, list: [] })
     const { data, error } = await supabase
       .from<Table.Chat & { user: Table.User }>('chats')
       .select(
@@ -67,15 +77,31 @@ const RoomNamePage: NextPage = () => {
       `
       )
       .eq('room_name', query.name as string)
+      .order('created_at', { ascending: false })
     if (error) {
+      console.log('getChats error')
       console.error(error)
-      setState({ isLoading: false, chats: [] })
+      setState({ isLoading: false, list: [] })
       return
     }
-    setState({ chats: data, isLoading: false })
-  }, [asPath])
+    setState({ list: data, isLoading: false })
+  }
 
-  const validateRoom = useCallback(async () => {
+  const insertChat = async (payload: SupabaseRealtimePayload<Table.Chat>) => {
+    const { data, error } = await supabase
+      .from<Table.User>('users')
+      .select('*')
+      .eq('id', payload.new.user_id)
+      .single()
+    if (error) {
+      console.log('get chat realtime')
+      console.error(error)
+      return
+    }
+    setState({ list: [{ ...payload.new, user: data }, ...list] })
+  }
+
+  const validateRoom = async () => {
     if (typeof query.name !== 'string') return
     const { error } = await supabase
       .from<Table.Room>('rooms')
@@ -87,10 +113,10 @@ const RoomNamePage: NextPage = () => {
       replace('/')
       return
     }
-    get()
-  }, [asPath])
+    getChats()
+  }
 
-  const getRoomId = useCallback(async () => {
+  const getRoomId = async () => {
     if (typeof query.name !== 'string') return
     const { data, error } = await supabase
       .from<Table.Room>('rooms')
@@ -102,8 +128,8 @@ const RoomNamePage: NextPage = () => {
       console.error(error)
       return
     }
-    setState({ room_id: data.id })
-  }, [asPath])
+    setState({ roomId: data.id })
+  }
 
   const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
 
@@ -111,24 +137,26 @@ const RoomNamePage: NextPage = () => {
     validateRoom()
     getRoomId()
   }, [asPath])
+
+  useEffect(() => {}, [query.name])
   return (
     <>
       <SEO title={typeof query.name === 'string' ? query.name : ''} />
-      <section className="flex flex-col h-full">
-        <div className="flex items-center w-full px-5 py-3 font-bold bg-white border-b border-neutral-100">
+      <section className="flex h-full flex-col">
+        <div className="flex w-full items-center border-b border-neutral-100 bg-white px-5 py-3 font-bold">
           {query.name}
         </div>
-        <div className="flex flex-col-reverse flex-1 px-5 py-2 space-y-3 space-y-reverse overflow-y-auto overscroll-contain">
+        <div className="flex flex-1 flex-col-reverse space-y-3 space-y-reverse overflow-y-auto overscroll-contain px-5 py-2">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <Spinner className="w-5 h-5 text-neutral-800" />
+            <div className="flex h-full items-center justify-center">
+              <Spinner className="h-5 w-5 text-neutral-800" />
             </div>
-          ) : (
-            chats.map((item, key) => (
+          ) : !!list.length ? (
+            list.map((item, key) => (
               <Fragment key={item.id}>
                 {item.user_id === user?.id ? (
                   <div className="flex justify-end">
-                    <div className="px-3 py-2 rounded-lg bg-blue-50">
+                    <div className="rounded-lg bg-blue-50 px-3 py-2">
                       {item.content}
                     </div>
                   </div>
@@ -137,11 +165,11 @@ const RoomNamePage: NextPage = () => {
                     <img
                       src={item.user.avatar_url}
                       alt=""
-                      className="w-8 h-8 cursor-pointer"
+                      className="h-8 w-8 cursor-pointer"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium cursor-pointer">
+                        <span className="cursor-pointer font-medium">
                           {item.user.nickname ||
                             item.user.email.slice(
                               0,
@@ -156,8 +184,11 @@ const RoomNamePage: NextPage = () => {
                     </div>
                   </div>
                 )}
-                {(dayjs(item.created_at).diff(chats[key + 1]?.created_at) > 0 ||
-                  key === chats.length - 1) && (
+                {(dayjs(item.created_at).diff(
+                  list[key + 1]?.created_at,
+                  'day'
+                ) > 0 ||
+                  key === list.length - 1) && (
                   <div className="relative z-10 flex items-center justify-center pb-3 text-xs before:absolute before:h-px before:w-full before:bg-neutral-200">
                     <div className="absolute bottom-1/2 left-1/2 z-10 translate-y-[calc(50%-6px)] -translate-x-[46px] select-none bg-white px-5 text-neutral-400">
                       {dayjs(item.created_at).format('MM월 DD일')}
@@ -166,12 +197,16 @@ const RoomNamePage: NextPage = () => {
                 )}
               </Fragment>
             ))
+          ) : (
+            <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+              아직 채팅이 없습니다. 첫 채팅의 주인공이 되어 보시겠어요? :)
+            </div>
           )}
         </div>
-        <div className="w-full px-5 py-3 bg-white border-t border-neutral-100">
+        <div className="w-full border-t border-neutral-100 bg-white px-5 py-3">
           <div className="flex items-end justify-between gap-3">
             <TextareaAutosize
-              className="flex-1 px-2 py-1 border rounded-lg border-neutral-200"
+              className="flex-1 rounded-lg border border-neutral-200 px-2 py-1"
               spellCheck={false}
               value={content}
               name="content"
@@ -190,7 +225,7 @@ const RoomNamePage: NextPage = () => {
               )}
               onClick={createChat}
             >
-              <ArrowSmUpIcon className="w-5 h-5 text-neutral-50" />
+              <ArrowSmUpIcon className="h-5 w-5 text-neutral-50" />
             </button>
           </div>
         </div>

@@ -22,7 +22,7 @@ const LoginModal: FC<Props> = ({ onClose }) => {
       isOpen={isLoginOpen}
       onClose={onClose}
       title="로그인하기"
-      description="커디를 소개합니다! 👋"
+      description="커디에 오신 것을 환영합니다! 👋"
       maxWidth="max-w-lg"
       footer={
         <div className="flex items-center justify-center gap-3">
@@ -38,7 +38,7 @@ const LoginModal: FC<Props> = ({ onClose }) => {
           <div>개발자들끼리 모여 일상을 나누어 보아요.</div>
         </div>
         <div className="mt-5 space-y-2">
-          <div className="flex gap-2 p-4 rounded-lg bg-blue-50">
+          <div className="flex gap-2 rounded-lg bg-blue-50 p-4">
             <span>👨‍💻</span>
             <span>130여 언어의 코드블록을 채팅방에서 올릴 수 있습니다!</span>
           </div>

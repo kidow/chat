@@ -1,40 +1,72 @@
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import type { FC } from 'react'
 import classnames from 'classnames'
 import { useRouter } from 'next/router'
-import { supabase, useObjectState } from 'services'
+import { roomListState, supabase } from 'services'
+import { useRecoilState } from 'recoil'
 
 export interface Props {}
-interface State {
-  rooms: Table.Room[]
-}
+interface State {}
 
 const Menu: FC<Props> = () => {
-  const [{ rooms }, setState] = useObjectState<State>({
-    rooms: []
-  })
   const { query } = useRouter()
+  const [roomList, setRoomList] = useRecoilState(roomListState)
 
-  const getRooms = async () => {
-    const { data, error } = await supabase.from<Table.Room>('rooms').select(`
+  const getRooms = useCallback(async () => {
+    const { data, error } = await supabase.from<
+      Table.Room & { chats: Array<Table.Chat & { user: Table.User }> }
+    >('rooms').select(`
       *,
-      chats (*)
+      chats (
+        *,
+        user:user_id (*)
+      )
     `)
     if (error) {
       console.error(error)
-      return
+      return ``
     }
-    console.log('data', data)
-    setState({ rooms: data })
-  }
+    console.log('이거됨?', data)
+    setRoomList(data)
+
+    supabase
+      .from<Table.Chat>('chats')
+      .on('INSERT', async (payload) => {
+        const index = roomList.findIndex(
+          (room) => room.id === payload.new.room_id
+        )
+        if (index === -1) return
+        const { data: user, error } = await supabase
+          .from<Table.User>('users')
+          .select('*')
+          .eq('id', payload.new.user_id)
+          .single()
+        if (error) {
+          console.log('subscription error')
+          console.error(error)
+          return
+        }
+        setRoomList([
+          ...roomList.slice(0, index),
+          {
+            ...roomList[index],
+            lastChat: payload.new.content,
+            isLastChatNotChecked: true,
+            chats: [{ ...payload.new, user }, ...roomList[index].chats]
+          },
+          ...roomList.slice(index + 1)
+        ])
+      })
+      .subscribe()
+  }, [])
 
   useEffect(() => {
     getRooms()
   }, [])
   return (
     <div className="h-[calc(100vh-148px)] divide-y divide-neutral-100 overflow-auto overscroll-contain">
-      {rooms.map((item) => (
+      {roomList.map((item) => (
         <Link key={item.id} href={`/room/${item.name}`}>
           <a>
             <div
@@ -44,11 +76,11 @@ const Menu: FC<Props> = () => {
               )}
             >
               <div className="flex items-center gap-3">
-                <span className="flex flex-col justify-center border rounded-full border-neutral-100">
+                <span className="flex flex-col justify-center rounded-full border border-neutral-100">
                   <img
                     src={item.thumbnail_url}
                     alt=""
-                    className="w-6 h-6 rounded"
+                    className="h-6 w-6 rounded"
                   />
                 </span>
                 <span
@@ -62,7 +94,14 @@ const Menu: FC<Props> = () => {
                   {item.name}
                 </span>
               </div>
-              <span className="flex items-center justify-center w-2 h-2 text-sm text-white bg-red-300 rounded-full group-hover:bg-red-500" />
+              <span
+                className={classnames(
+                  'flex h-2 w-2 items-center justify-center rounded-full text-sm text-white',
+                  item.name === query.name
+                    ? 'bg-red-500'
+                    : 'bg-red-300 group-hover:bg-red-500'
+                )}
+              />
             </div>
           </a>
         </Link>

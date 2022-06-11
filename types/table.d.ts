@@ -13,6 +13,8 @@ namespace Table {
     name: string
     created_at: string
     thumbnail_url: string
+    lastChat?: string
+    isLastChatNotChecked?: boolean
   }
 
   interface User {
