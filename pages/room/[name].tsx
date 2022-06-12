@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import { ArrowSmUpIcon } from '@heroicons/react/outline'
+import { ArrowSmUpIcon, CodeIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import {
@@ -13,22 +13,28 @@ import { useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useRouter } from 'next/router'
-import { SEO, Spinner } from 'components'
+import { IconButton, SEO, Spinner } from 'components'
 import dayjs from 'dayjs'
+import { Modal } from 'containers'
 
 interface State {
   content: string
   roomId: number
   isSubmitting: boolean
+  isCodeEditorOpen: boolean
 }
 
 const RoomNamePage: NextPage = () => {
-  const [{ content, roomId, isSubmitting }, setState, onChange] =
-    useObjectState<State>({
-      content: '',
-      roomId: 0,
-      isSubmitting: false
-    })
+  const [
+    { content, roomId, isSubmitting, isCodeEditorOpen },
+    setState,
+    onChange
+  ] = useObjectState<State>({
+    content: '',
+    roomId: 0,
+    isSubmitting: false,
+    isCodeEditorOpen: false
+  })
   const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
   const [user] = useUser()
   const roomList = useRecoilValue(roomListState)
@@ -110,21 +116,21 @@ const RoomNamePage: NextPage = () => {
   return (
     <>
       <SEO title={typeof query.name === 'string' ? query.name : ''} />
-      <section className="flex h-full flex-col">
-        <div className="flex w-full items-center border-b border-neutral-100 bg-white px-5 py-3 font-bold">
+      <section className="flex flex-col h-full">
+        <div className="flex items-center w-full px-5 py-3 font-bold bg-white border-b border-neutral-100">
           {query.name}
         </div>
-        <div className="flex flex-1 flex-col-reverse space-y-3 space-y-reverse overflow-y-auto overscroll-contain px-5 py-2">
+        <div className="flex flex-col-reverse flex-1 px-5 py-2 space-y-3 space-y-reverse overflow-y-auto overscroll-contain">
           {!roomList.length ? (
-            <div className="flex h-full items-center justify-center">
-              <Spinner className="h-5 w-5 text-neutral-800" />
+            <div className="flex items-center justify-center h-full">
+              <Spinner className="w-5 h-5 text-neutral-800" />
             </div>
           ) : !!chatList.length ? (
             chatList.map((item, key, arr) => (
               <Fragment key={item.id}>
                 {item.user_id === user?.id ? (
                   <div className="flex justify-end">
-                    <div className="rounded-lg bg-blue-50 px-3 py-2">
+                    <div className="px-3 py-2 rounded-lg bg-blue-50">
                       {item.content}
                     </div>
                   </div>
@@ -133,11 +139,11 @@ const RoomNamePage: NextPage = () => {
                     <img
                       src={item.user.avatar_url}
                       alt=""
-                      className="h-8 w-8 cursor-pointer"
+                      className="w-8 h-8 cursor-pointer"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="cursor-pointer font-medium">
+                        <span className="font-medium cursor-pointer">
                           {item.user.nickname ||
                             item.user.email.slice(
                               0,
@@ -166,15 +172,15 @@ const RoomNamePage: NextPage = () => {
               </Fragment>
             ))
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+            <div className="flex items-center justify-center h-full text-xs text-neutral-400">
               아직 채팅이 없습니다. 첫 채팅의 주인공이 되어 보시겠어요? :)
             </div>
           )}
         </div>
-        <div className="w-full border-t border-neutral-100 bg-white px-5 py-3">
+        <div className="w-full px-5 py-3 bg-white border-t border-neutral-100">
           <div className="flex items-end justify-between gap-3">
             <TextareaAutosize
-              className="flex-1 rounded-lg border border-neutral-200 px-2 py-1"
+              className="flex-1 px-2 py-1 border rounded-lg border-neutral-200"
               spellCheck={false}
               value={content}
               name="content"
@@ -185,6 +191,9 @@ const RoomNamePage: NextPage = () => {
                 if (!isLoggedIn) setIsLoginOpen(true)
               }}
             />
+            <IconButton onClick={() => setState({ isCodeEditorOpen: true })}>
+              <CodeIcon />
+            </IconButton>
             <button
               className={classnames(
                 'rounded-full p-1.5',
@@ -193,11 +202,17 @@ const RoomNamePage: NextPage = () => {
               )}
               onClick={createChat}
             >
-              <ArrowSmUpIcon className="h-5 w-5 text-neutral-50" />
+              <ArrowSmUpIcon className="w-5 h-5 text-neutral-50" />
             </button>
           </div>
         </div>
       </section>
+
+      <Modal.CodeEditor
+        isOpen={isCodeEditorOpen}
+        onClose={() => setState({ isCodeEditorOpen: false })}
+        content={content}
+      />
     </>
   )
 }

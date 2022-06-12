@@ -6,12 +6,14 @@ import { Portal } from 'components'
 import LoginModal from './Login'
 import MyInfoModal from './MyInfo'
 import AgreeToTermsModal from './AgreeToTerms'
+import CodeEditorModal from './CodeEditor'
 
 interface Props extends ModalProps {}
 interface IModal extends FC<Props> {
   Login: typeof LoginModal
   MyInfo: typeof MyInfoModal
   AgreeToTerms: typeof AgreeToTermsModal
+  CodeEditor: typeof CodeEditorModal
 }
 interface State {}
 
@@ -33,9 +35,9 @@ const Modal: IModal = ({
         aria-labelledby="modal-title"
         aria-modal="true"
       >
-        <div className="flex min-h-screen items-end justify-center p-0 text-center md:block">
+        <div className="flex items-end justify-center min-h-screen p-0 text-center md:block">
           <div
-            className="fixed inset-0 bg-black opacity-30 transition-opacity"
+            className="fixed inset-0 transition-opacity bg-black opacity-30"
             aria-hidden="true"
             onClick={onClose}
           ></div>
@@ -51,7 +53,7 @@ const Modal: IModal = ({
               maxWidth
             )}
           >
-            <header className="border-t-4 border-gray-800 bg-white">
+            <header className="bg-white border-t-4 border-gray-800">
               {!!title && (
                 <div
                   className={classnames(
@@ -69,9 +71,9 @@ const Modal: IModal = ({
                   </div>
                   <button
                     onClick={onClose}
-                    className="rounded-full p-2 hover:bg-gray-300"
+                    className="p-2 rounded-full hover:bg-gray-300"
                   >
-                    <XIcon className="h-5 w-5 text-gray-800" />
+                    <XIcon className="w-5 h-5 text-gray-800" />
                   </button>
                 </div>
               )}
@@ -84,7 +86,7 @@ const Modal: IModal = ({
               {children}
             </div>
             {footer && (
-              <footer className="border-t bg-white py-4 px-7">{footer}</footer>
+              <footer className="py-4 bg-white border-t px-7">{footer}</footer>
             )}
           </div>
         </div>
@@ -96,5 +98,6 @@ const Modal: IModal = ({
 Modal.Login = LoginModal
 Modal.MyInfo = MyInfoModal
 Modal.AgreeToTerms = AgreeToTermsModal
+Modal.CodeEditor = CodeEditorModal
 
 export default Modal

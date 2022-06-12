@@ -6,6 +6,8 @@ namespace Table {
     room_name: string
     user_id: string
     room_id: number
+    code_block: string
+    language: string
     isNotChecked?: boolean
   }
 
