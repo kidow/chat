@@ -16,19 +16,19 @@ type TMaxWidth =
   | 'max-w-lg'
   | 'max-w-md'
   | 'max-w-sm'
-  | 'max-w-xs';
+  | 'max-w-xs'
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
-  title?: string;
+  title?: string
   /**
    * @default 'max-w-lg'
    */
-  maxWidth?: TMaxWidth;
-  description?: ReactNode;
-  padding?: boolean;
-  footer?: ReactNode;
+  maxWidth?: TMaxWidth
+  description?: ReactNode
+  padding?: boolean
+  footer?: ReactNode
 }
 
 interface IUser {
@@ -41,3 +41,15 @@ interface IUser {
   provider: string
 }
 
+interface DialogProps {
+  onClose?: () => void
+  title?: string
+  description?: string
+  padding?: boolean
+  footer?: ReactNode
+  /**
+   * @default 'max-w-lg'
+   */
+  maxWidth?: TMaxWidth
+  children?: ReactNode
+}
