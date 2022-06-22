@@ -29,4 +29,11 @@ namespace Table {
     is_agree_to_terms: boolean
     interested_room: string[]
   }
+
+  interface Language {
+    id: number
+    name: string
+    template: string
+    created_at: string
+  }
 }

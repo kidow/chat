@@ -15,15 +15,17 @@ interface State {
   content: string
   language: string
   codeBlock: string
+  isSubmitting: boolean
 }
 
 const CodeEditorModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
   if (!isOpen) return null
-  const [{ content, language, codeBlock }, setState, onChange] =
+  const [{ content, language, codeBlock, isSubmitting }, setState, onChange] =
     useObjectState<State>({
       content: props.content || '',
       language: props.language || 'javascript',
-      codeBlock: props.codeBlock || ''
+      codeBlock: props.codeBlock || '',
+      isSubmitting: false
     })
 
   const [user] = useUser()
@@ -59,7 +61,12 @@ const CodeEditorModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
               </option>
             ))}
           </Select>
-          <Button theme="primary" shape="outlined" disabled={!content}>
+          <Button
+            loading={isSubmitting}
+            theme="primary"
+            shape="outlined"
+            disabled={!content || !isLoggedIn}
+          >
             작성
           </Button>
         </div>
