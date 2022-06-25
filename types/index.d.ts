@@ -57,3 +57,23 @@ interface DialogProps {
 interface ToastProps {
   message: string
 }
+
+namespace NToast {
+  interface State {
+    message: string
+    type: NToast.Type
+  }
+  interface Props {}
+  interface Emit {
+    message: string
+    type: NToast.Type
+  }
+  type Type = 'success' | 'info' | 'warn' | 'error'
+  type Position =
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right'
+}

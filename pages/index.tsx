@@ -1,7 +1,7 @@
 import { SEO } from 'components'
 import type { NextPage } from 'next'
-import { toast } from 'react-toastify'
-import { toast as retoast } from 'services'
+import { toast as retoast } from 'react-toastify'
+import { toast } from 'services'
 
 interface State {}
 
@@ -12,7 +12,7 @@ const HomePage: NextPage = () => {
       <div className="flex h-full items-center justify-center gap-4">
         <button
           onClick={() =>
-            toast.success('성공', {
+            retoast.success('성공', {
               autoClose: false,
               position: 'bottom-right'
             })
@@ -22,10 +22,25 @@ const HomePage: NextPage = () => {
         </button>
         <button
           onClick={() =>
-            retoast.success(`${Math.random().toString(36).slice(2)}`)
+            toast.success(`${Math.random().toString(36).slice(2)}`)
           }
         >
-          ReToast!
+          Success
+        </button>
+        <button
+          onClick={() => toast.info(`${Math.random().toString(36).slice(2)}`)}
+        >
+          Info
+        </button>
+        <button
+          onClick={() => toast.warn(`${Math.random().toString(36).slice(2)}`)}
+        >
+          Warn
+        </button>
+        <button
+          onClick={() => toast.error(`${Math.random().toString(36).slice(2)}`)}
+        >
+          Error
         </button>
       </div>
     </>

@@ -15,16 +15,18 @@ export interface Props {
     | 'bottom-right'
 }
 interface State {
-  list: ToastProps[]
+  list: NToast.State[]
 }
 
-const ToastContainer: FC<Props> = ({ position = 'bottom-left' }) => {
+const ToastContainer: FC<Props> = ({ position = 'top-right' }) => {
   const [{ list }, setState] = useObjectState<State>({ list: [] })
 
   const onMessage = useCallback(
     ({ detail }: any) => {
-      console.log('list', list)
-      setState({ list: [...list, { message: detail.message }] })
+      console.log('detail', detail)
+      setState({
+        list: [...list, { message: detail.message, type: detail.type }]
+      })
     },
     [list.length]
   )
@@ -56,6 +58,7 @@ const ToastContainer: FC<Props> = ({ position = 'bottom-left' }) => {
           <Toast
             key={key}
             message={item.message}
+            type={item.type}
             onRemove={() =>
               setState({ list: list.filter((_, i) => i !== key) })
             }

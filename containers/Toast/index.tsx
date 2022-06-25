@@ -2,19 +2,18 @@ import { useEffect, useMemo } from 'react'
 import type { FC } from 'react'
 import { useObjectState } from 'services'
 import classnames from 'classnames'
-import { CheckCircleIcon, XIcon } from '@heroicons/react/solid'
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  ExclamationIcon,
+  InformationCircleIcon,
+  XIcon
+} from '@heroicons/react/solid'
 import ToastContainer from './Container'
 
 export interface Props {
   message: string
-  position?:
-    | 'top-left'
-    | 'top-center'
-    | 'top-right'
-    | 'bottom-left'
-    | 'bottom-center'
-    | 'bottom-right'
-  type?: 'success' | 'info' | 'warn' | 'error'
+  type: 'success' | 'info' | 'warn' | 'error'
   autoClose?: number | false
   onRemove: () => void
 }
@@ -25,7 +24,13 @@ interface State {
   progress: number
 }
 
-const Toast: IToast = ({ onRemove, message, autoClose = false, ...props }) => {
+const Toast: IToast = ({
+  onRemove,
+  message,
+  type,
+  autoClose = 5000,
+  ...props
+}) => {
   const [{ progress }, setState] = useObjectState<State>({
     progress: 0
   })
@@ -61,7 +66,6 @@ const Toast: IToast = ({ onRemove, message, autoClose = false, ...props }) => {
     }
   }, [autoClose])
 
-  console.log('percentage', Math.floor(percentage / 50))
   return (
     <div
       className="relative z-[9999] w-80 cursor-pointer rounded bg-white p-2"
@@ -77,7 +81,18 @@ const Toast: IToast = ({ onRemove, message, autoClose = false, ...props }) => {
             className="my-1.5 flex flex-1 items-center gap-2.5 py-1.5"
           >
             <span>
-              <CheckCircleIcon className="h-6 w-6 text-green-500" />
+              {type === 'success' && (
+                <CheckCircleIcon className="h-6 w-6 text-green-500" />
+              )}
+              {type === 'info' && (
+                <InformationCircleIcon className="h-6 w-6 text-blue-500" />
+              )}
+              {type === 'warn' && (
+                <ExclamationIcon className="h-6 w-6 text-amber-500" />
+              )}
+              {type === 'error' && (
+                <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
+              )}
             </span>
             <div className="flex-1 text-neutral-500">{message}</div>
           </div>
@@ -92,7 +107,12 @@ const Toast: IToast = ({ onRemove, message, autoClose = false, ...props }) => {
           className="absolute bottom-0 left-0 h-[5px] w-full rounded-b"
         >
           <div
-            className="h-full rounded-bl bg-red-500"
+            className={classnames('h-full rounded-bl', {
+              'bg-green-500': type === 'success',
+              'bg-blue-500': type === 'info',
+              'bg-amber-500': type === 'warn',
+              'bg-red-500': type === 'error'
+            })}
             style={{ width: `${100 - percentage / time / 10}%` }}
           />
         </div>
