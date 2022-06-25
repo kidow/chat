@@ -6,7 +6,6 @@ interface State {}
 const ErrorPage = () => {
   const { replace } = useRouter()
   useEffect(() => {
-    console.log('500')
     replace('/')
   }, [])
   return <></>
