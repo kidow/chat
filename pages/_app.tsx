@@ -2,7 +2,7 @@ import 'styles/globals.css'
 import App from 'next/app'
 import { ErrorInfo } from 'react'
 import { Backdrop } from 'components'
-import { Layout, Auth } from 'containers'
+import { Layout, Auth, Toast } from 'containers'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { RecoilRoot } from 'recoil'
@@ -37,6 +37,7 @@ class MyApp extends App<Props, {}, State> {
           <Backdrop />
         </RecoilRoot>
         <ToastContainer position="top-center" autoClose={3000} theme="light" />
+        <Toast />
       </>
     )
   }
