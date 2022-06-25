@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { FC } from 'react'
-import { createPortal } from 'react-dom'
-import { EventListener, useObjectState } from 'services'
+import { useObjectState } from 'services'
 import classnames from 'classnames'
 import { CheckCircleIcon, XIcon } from '@heroicons/react/solid'
+import ToastContainer from './Container'
 
 export interface Props {
+  message: string
   position?:
     | 'top-left'
     | 'top-center'
@@ -14,52 +15,92 @@ export interface Props {
     | 'bottom-center'
     | 'bottom-right'
   type?: 'success' | 'info' | 'warn' | 'error'
+  autoClose?: number | false
+  onRemove: () => void
+}
+interface IToast extends FC<Props> {
+  Container: typeof ToastContainer
 }
 interface State {
-  isOpen: boolean
+  progress: number
 }
 
-const Toast: FC<Props> = ({ ...props }) => {
-  const [{ isOpen }, setState] = useObjectState<State>({ isOpen: false })
+const Toast: IToast = ({ onRemove, message, autoClose = false, ...props }) => {
+  const [{ progress }, setState] = useObjectState<State>({
+    progress: 0
+  })
+  let rafId: number | null = null
 
-  const onMessage = ({ detail }: any) => {
-    console.log('detail', detail)
-    setState({ isOpen: true })
+  const animate = () => {
+    let start: number = 0
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp
+      let progress = timestamp - start
+      setState({ progress })
+      if (progress > autoClose) {
+        onRemove()
+        return
+      }
+      rafId = requestAnimationFrame(step)
+    }
+    rafId = requestAnimationFrame(step)
   }
 
+  const percentage: number = useMemo(() => progress, [progress])
+
+  const time: number = useMemo(
+    () => (autoClose ? autoClose / 1000 : 0),
+    [autoClose]
+  )
+
   useEffect(() => {
-    EventListener.add('toast', onMessage)
-    return () => EventListener.remove('toast', onMessage)
-  }, [])
-  if (!isOpen) return null
-  return createPortal(
-    <div role="alertdialog" className="space-y-4">
-      <div
-        className="fixed top-4 left-1/2 z-[9999] w-80 -translate-x-1/2 cursor-pointer rounded p-2 shadow-lg"
-        onClick={() => setState({ isOpen: false })}
-      >
-        <div className="relative flex items-start">
-          <div className="flex items-center">
-            <div
-              role="alert"
-              className="my-1.5 flex flex-1 items-center gap-2.5 py-1.5"
-            >
-              <span>
-                <CheckCircleIcon className="h-6 w-6 text-green-500" />
-              </span>
-              <div className="flex-1 text-neutral-500">
-                성공성공성공성공성공성공성공성공성공성공성공성공성공성공
-              </div>
-            </div>
+    if (autoClose === false) return
+    animate()
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [autoClose])
+
+  console.log('percentage', Math.floor(percentage / 50))
+  return (
+    <div
+      className="relative z-[9999] w-80 cursor-pointer rounded bg-white p-2"
+      onClick={onRemove}
+      style={{
+        boxShadow: '0 1px 10px 0 rgb(0 0 0 / 10%), 0 2px 15px 0 rgb(0 0 0 / 5%)'
+      }}
+    >
+      <div className="relative flex items-start">
+        <div className="flex flex-1 items-center">
+          <div
+            role="alert"
+            className="my-1.5 flex flex-1 items-center gap-2.5 py-1.5"
+          >
+            <span>
+              <CheckCircleIcon className="h-6 w-6 text-green-500" />
+            </span>
+            <div className="flex-1 text-neutral-500">{message}</div>
           </div>
-          <button>
-            <XIcon className="h-4 w-4 text-neutral-400" />
-          </button>
         </div>
+        <button>
+          <XIcon className="h-4 w-4 text-neutral-400" />
+        </button>
       </div>
-    </div>,
-    document.body
+      {autoClose && (
+        <div
+          role="progressbar"
+          className="absolute bottom-0 left-0 h-[5px] w-full rounded-b"
+        >
+          <div
+            className="h-full rounded-bl bg-red-500"
+            style={{ width: `${100 - percentage / time / 10}%` }}
+          />
+        </div>
+      )}
+    </div>
   )
 }
+
+Toast.Container = ToastContainer
 
 export default Toast

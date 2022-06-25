@@ -37,7 +37,7 @@ class MyApp extends App<Props, {}, State> {
           <Backdrop />
         </RecoilRoot>
         <ToastContainer position="top-center" autoClose={3000} theme="light" />
-        <Toast />
+        <Toast.Container />
       </>
     )
   }

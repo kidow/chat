@@ -12,12 +12,21 @@ const HomePage: NextPage = () => {
       <div className="flex h-full items-center justify-center gap-4">
         <button
           onClick={() =>
-            toast.success('성공', { autoClose: false, position: 'top-right' })
+            toast.success('성공', {
+              autoClose: false,
+              position: 'bottom-right'
+            })
           }
         >
           Toast
         </button>
-        <button onClick={() => retoast.success('ReToast')}>ReToast!</button>
+        <button
+          onClick={() =>
+            retoast.success(`${Math.random().toString(36).slice(2)}`)
+          }
+        >
+          ReToast!
+        </button>
       </div>
     </>
   )

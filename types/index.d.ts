@@ -53,3 +53,7 @@ interface DialogProps {
   maxWidth?: TMaxWidth
   children?: ReactNode
 }
+
+interface ToastProps {
+  message: string
+}
