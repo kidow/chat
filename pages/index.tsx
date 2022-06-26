@@ -9,7 +9,7 @@ const HomePage: NextPage = () => {
   return (
     <>
       <SEO title="개발자들이 일상을 나누는 곳." />
-      <div className="flex h-full items-center justify-center gap-4">
+      {/* <div className="flex h-full items-center justify-center gap-4">
         <button
           onClick={() =>
             retoast.success('성공', {
@@ -74,7 +74,7 @@ const HomePage: NextPage = () => {
         >
           BottomRight
         </button>
-      </div>
+      </div> */}
     </>
   )
 }

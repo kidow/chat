@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import type { FC } from 'react'
 import { EventListener } from 'services'
 import classnames from 'classnames'
@@ -11,6 +10,7 @@ import {
 } from '@heroicons/react/solid'
 import ToastContainer from './Container'
 import ToastWrapper from './Wrapper'
+import ToastProgress from './Progress'
 
 export interface Props {
   id: string
@@ -35,16 +35,6 @@ const Toast: IToast = ({
   pauseOnHover = true,
   ...props
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
-
-  const onRemove = () => EventListener.emit('toast', { id })
-
-  useEffect(() => {
-    if (!autoClose) return
-    ref.current?.addEventListener('animationend', onRemove)
-    return () => ref.current?.removeEventListener('animationend', onRemove)
-  }, [autoClose])
-
   return (
     <div
       className={classnames(
@@ -60,7 +50,7 @@ const Toast: IToast = ({
         }
       )}
       id={id}
-      onClick={onRemove}
+      onClick={() => EventListener.emit('toast', { id })}
       style={{
         boxShadow: '0 1px 10px 0 rgb(0 0 0 / 10%), 0 2px 15px 0 rgb(0 0 0 / 5%)'
       }}
@@ -93,21 +83,12 @@ const Toast: IToast = ({
         </button>
       </div>
       {autoClose && (
-        <div
-          ref={ref}
-          role="progressbar"
-          className={classnames(
-            'absolute bottom-0 left-0 h-[5px] w-full origin-left animate-progress rounded-bl',
-            {
-              'bg-green-500': type === 'success',
-              'bg-blue-500': type === 'info',
-              'bg-amber-500': type === 'warn',
-              'bg-red-500': type === 'error',
-              'group-hover:animate-play-paused': pauseOnHover
-            }
-          )}
-          style={{ animationDuration: `${autoClose + 700}ms` }}
-        ></div>
+        <ToastProgress
+          id={id}
+          type={type}
+          pauseOnHover={pauseOnHover}
+          autoClose={autoClose}
+        />
       )}
     </div>
   )
