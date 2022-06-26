@@ -13,7 +13,7 @@ const HomePage: NextPage = () => {
         <button
           onClick={() =>
             retoast.success('성공', {
-              autoClose: false,
+              autoClose: 30000,
               position: 'bottom-right'
             })
           }

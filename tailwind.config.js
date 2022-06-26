@@ -27,16 +27,6 @@ module.exports = {
             transform: 'none'
           }
         },
-        'bounce-out-right': {
-          '20%': {
-            opacity: 1,
-            transform: 'translate3d(-20px, 0, 0)'
-          },
-          to: {
-            opacity: 0,
-            transform: 'translate3d(2000px, 0, 0)'
-          }
-        },
         'bounce-in-left': {
           '0%': {
             opacity: 0,
@@ -54,16 +44,6 @@ module.exports = {
           },
           to: {
             transform: 'none'
-          }
-        },
-        'bounce-out-left': {
-          '20%': {
-            opacity: 1,
-            transform: 'translate3d(20px, 0, 0)'
-          },
-          to: {
-            opacity: 0,
-            transform: 'translate3d(-2000px, 0, 0)'
           }
         },
         'bounce-in-up': {
@@ -85,19 +65,6 @@ module.exports = {
             transform: 'translate3d(0, 0, 0)'
           }
         },
-        'bounce-out-up': {
-          '20%': {
-            transform: 'translate3d(0, -10px, 0)'
-          },
-          '40%, 45%': {
-            opacity: 1,
-            transform: 'translate3d(0, 20px, 0)'
-          },
-          to: {
-            opacity: 0,
-            transform: 'translate3d(0, -2000px, 0)'
-          }
-        },
         'bounce-in-down': {
           '0%': {
             opacity: 0,
@@ -117,27 +84,21 @@ module.exports = {
             transform: 'none'
           }
         },
-        'bounce-out-down': {
-          '20%': {
-            transform: 'translate3d(0, 10px, 0)'
+        progress: {
+          '0%': {
+            transform: 'scaleX(1)'
           },
-          '40%, 45%': {
-            opacity: 1,
-            transform: 'translate3d(0, -20px, 0)'
-          },
-          to: {
-            opacity: 0,
-            transform: 'translate3d(0, 2000px, 0)'
+          '100%': {
+            transform: 'scaleX(0)'
           }
         }
       },
       animation: {
         'bounce-in-right': 'bounce-in-right 0.7s linear',
-        'bounce-out-right': 'bounce-out-right 0.7s linear',
         'bounce-in-left': 'bounce-in-left 0.7s linear',
-        'bounce-out-left': 'bounce-out-left 0.7s linear',
         'bounce-in-up': 'bounce-in-up 0.7s linear',
-        'bounce-in-down': 'bounce-in-down 0.7s linear'
+        'bounce-in-down': 'bounce-in-down 0.7s linear',
+        progress: 'progress linear 1 forwards'
       }
     }
   },

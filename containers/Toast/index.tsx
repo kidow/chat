@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useRef } from 'react'
 import type { FC } from 'react'
-import { useObjectState } from 'services'
+import { EventListener } from 'services'
 import classnames from 'classnames'
 import {
   CheckCircleIcon,
@@ -13,61 +13,36 @@ import ToastContainer from './Container'
 import ToastWrapper from './Wrapper'
 
 export interface Props {
+  id: string
   message: string
   type: NToast.Type
-  position: NToast.Position
+  position?: NToast.Position
   autoClose?: number | false
-  onRemove: () => void
+  pauseOnHover?: boolean
 }
 interface IToast extends FC<Props> {
   Container: typeof ToastContainer
   Wrapper: typeof ToastWrapper
 }
-interface State {
-  progress: number
-}
+interface State {}
 
 const Toast: IToast = ({
-  onRemove,
+  id,
   message,
   type,
-  autoClose = 5000,
-  position,
+  autoClose = 3000,
+  position = 'top-right',
+  pauseOnHover = true,
   ...props
 }) => {
-  const [{ progress }, setState] = useObjectState<State>({
-    progress: 0
-  })
-  let rafId: number | null = null
+  const ref = useRef<HTMLDivElement>(null)
 
-  const animate = () => {
-    let start: number = 0
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp
-      let progress = timestamp - start
-      setState({ progress })
-      if (progress > autoClose) {
-        onRemove()
-        return
-      }
-      rafId = requestAnimationFrame(step)
-    }
-    rafId = requestAnimationFrame(step)
-  }
-
-  const percentage: number = useMemo(() => progress, [progress])
-
-  const time: number = useMemo(
-    () => (autoClose ? autoClose / 1000 : 0),
-    [autoClose]
-  )
+  const onRemove = () => EventListener.emit('toast', { id })
 
   useEffect(() => {
-    if (autoClose === false) return
-    animate()
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId)
-    }
+    if (!autoClose) return
+    ref.current?.addEventListener('animationend', onRemove)
+    return () => ref.current?.removeEventListener('animationend', onRemove)
   }, [autoClose])
 
   return (
@@ -80,9 +55,11 @@ const Toast: IToast = ({
           'animate-bounce-in-left':
             position === 'top-left' || position === 'bottom-left',
           'animate-bounce-in-up': position === 'bottom-center',
-          'animate-bounce-in-down': position === 'top-center'
+          'animate-bounce-in-down': position === 'top-center',
+          group: pauseOnHover
         }
       )}
+      id={id}
       onClick={onRemove}
       style={{
         boxShadow: '0 1px 10px 0 rgb(0 0 0 / 10%), 0 2px 15px 0 rgb(0 0 0 / 5%)'
@@ -117,19 +94,20 @@ const Toast: IToast = ({
       </div>
       {autoClose && (
         <div
+          ref={ref}
           role="progressbar"
-          className="absolute bottom-0 left-0 h-[5px] w-full rounded-b"
-        >
-          <div
-            className={classnames('h-full rounded-bl', {
+          className={classnames(
+            'absolute bottom-0 left-0 h-[5px] w-full origin-left animate-progress rounded-bl',
+            {
               'bg-green-500': type === 'success',
               'bg-blue-500': type === 'info',
               'bg-amber-500': type === 'warn',
-              'bg-red-500': type === 'error'
-            })}
-            style={{ width: `${100 - percentage / time / 10}%` }}
-          />
-        </div>
+              'bg-red-500': type === 'error',
+              'group-hover:animate-play-paused': pauseOnHover
+            }
+          )}
+          style={{ animationDuration: `${autoClose + 700}ms` }}
+        ></div>
       )}
     </div>
   )

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import type { FC } from 'react'
 import { Toast } from 'containers'
-import { EventListener, useObjectState } from 'services'
+import { EventListener, randomString, useObjectState } from 'services'
 
 export interface Props {
   position?:
@@ -22,43 +22,48 @@ const ToastContainer: FC<Props> = ({ position = 'top-right' }) => {
   const onMessage = useCallback(
     ({ detail }: any) =>
       setState({
-        list: [
-          ...list,
-          {
-            message: detail.message,
-            type: detail.type,
-            position: detail.position || position
-          }
-        ]
+        list: !!detail.id
+          ? list.filter((item) => item.id !== detail.id)
+          : [
+              ...list,
+              {
+                id: randomString(),
+                message: detail.message,
+                type: detail.type,
+                position: detail.position || position,
+                pauseOnHover: detail.pauseOnHover || true
+              }
+            ]
       }),
     [list.length]
   )
 
   const topLeftList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'top-left'),
-    [list]
+    [list.length]
   )
   const topCenterList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'top-center'),
-    [list]
+    [list.length]
   )
   const topRightList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'top-right'),
-    [list]
+    [list.length]
   )
   const bottomLeftList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'bottom-left'),
-    [list]
+    [list.length]
   )
   const bottomCenterList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'bottom-center'),
-    [list]
+    [list.length]
   )
   const bottomRightList: NToast.State[] = useMemo(
     () => list.filter((item) => item.position === 'bottom-right'),
-    [list]
+    [list.length]
   )
 
+  // list.length가 늘어날 때만 실행하도록 바꿔야 함!
   useEffect(() => {
     EventListener.once('toast', onMessage)
   }, [list.length])
@@ -69,90 +74,42 @@ const ToastContainer: FC<Props> = ({ position = 'top-right' }) => {
       {!!topLeftList.length && (
         <Toast.Wrapper position="top-left">
           {topLeftList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}
       {!!topCenterList.length && (
         <Toast.Wrapper position="top-center">
           {topCenterList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}
       {!!topRightList.length && (
         <Toast.Wrapper position="top-right">
           {topRightList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}
       {!!bottomLeftList.length && (
         <Toast.Wrapper position="bottom-left">
           {bottomLeftList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}
       {!!bottomCenterList.length && (
         <Toast.Wrapper position="bottom-center">
           {bottomCenterList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}
       {!!bottomRightList.length && (
         <Toast.Wrapper position="bottom-right">
           {bottomRightList.map((item, key) => (
-            <Toast
-              key={key}
-              message={item.message}
-              position={item.position}
-              type={item.type}
-              onRemove={() =>
-                setState({ list: list.filter((_, i) => i !== key) })
-              }
-            />
+            <Toast key={key} {...item} />
           ))}
         </Toast.Wrapper>
       )}

@@ -60,15 +60,18 @@ interface ToastProps {
 
 namespace NToast {
   interface State {
+    id: string
     message: string
     type: NToast.Type
     position: NToast.Position
+    pauseOnHover: boolean
   }
   interface Props {}
   interface Emit {
     message: string
     type: NToast.Type
     position: NToast.Position
+    pauseOnHover?: boolean
   }
   type Type = 'success' | 'info' | 'warn' | 'error'
   type Position =

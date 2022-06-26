@@ -3,6 +3,8 @@ import { EventListener } from 'services'
 export const enumToOptions = (enumObj: any) =>
   Object.entries<string>(enumObj).map(([name, value]) => ({ value, name }))
 
+export const randomString = () => Math.random().toString(36).slice(2)
+
 export const toast = {
   success: (message: string, options?: Omit<NToast.Emit, 'message' | 'type'>) =>
     EventListener.emit<NToast.Emit>('toast', {
