@@ -3,8 +3,6 @@ import App from 'next/app'
 import { ErrorInfo } from 'react'
 import { Backdrop } from 'components'
 import { Layout, Auth, Toast } from 'containers'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import { RecoilRoot } from 'recoil'
 import 'dayjs/locale/ko'
 
@@ -36,7 +34,6 @@ class MyApp extends App<Props, {}, State> {
           </Auth>
           <Backdrop />
         </RecoilRoot>
-        <ToastContainer position="top-center" autoClose={3000} theme="light" />
         <Toast.Container />
       </>
     )

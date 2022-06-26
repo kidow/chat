@@ -26,9 +26,3 @@
     @apply disabled:cursor-not-allowed;
   }
 }
-
-@layer components {
-  .animate-play-paused {
-    animation-play-state: paused;
-  }
-}

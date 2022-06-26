@@ -1,8 +1,7 @@
 import type { FC } from 'react'
 import { Modal } from 'containers'
 import { Button, Checkbox } from 'components'
-import { supabase, useObjectState } from 'services'
-import { toast } from 'react-toastify'
+import { supabase, useObjectState, toast } from 'services'
 
 export interface Props extends ModalProps {}
 interface State {
@@ -64,7 +63,7 @@ const AgreeToTermsModal: FC<Props> = ({ isOpen, onClose }) => {
       }
     >
       <div className="space-y-4">
-        <div className="p-3 space-y-2 rounded-lg bg-blue-50">
+        <div className="space-y-2 rounded-lg bg-blue-50 p-3">
           <div className="text-lg font-medium text-blue-500">첫 번째</div>
           <div className="text-sm text-blue-500">content content</div>
         </div>

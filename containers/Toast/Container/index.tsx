@@ -54,7 +54,6 @@ const ToastContainer: FC<Props> = ({
     )
   }
 
-  // list.length가 늘어날 때만 실행하도록 바꿔야 함!
   useEffect(() => {
     EventListener.once('toast', onMessage)
   }, [list.length])

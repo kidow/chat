@@ -1,3 +1,5 @@
+const plugin = require('tailwindcss/plugin')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -102,5 +104,14 @@ module.exports = {
       }
     }
   },
-  plugins: [require('prettier-plugin-tailwindcss')]
+  plugins: [
+    require('prettier-plugin-tailwindcss'),
+    plugin(function ({ addComponents }) {
+      addComponents({
+        '.animate-play-paused': {
+          animationPlayState: 'paused'
+        }
+      })
+    })
+  ]
 }
