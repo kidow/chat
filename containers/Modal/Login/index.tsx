@@ -12,9 +12,10 @@ const LoginModal: FC<Props> = ({ onClose }) => {
   if (!isLoginOpen) return null
 
   const onLogin = async () => {
-    const { error } = await supabase.auth.signIn({ provider: 'github' })
-    if (error) {
-      console.error(error)
+    try {
+      await supabase.auth.signIn({ provider: 'github' })
+    } catch (err) {
+      console.error(err)
     }
   }
   return (
@@ -27,7 +28,7 @@ const LoginModal: FC<Props> = ({ onClose }) => {
       footer={
         <div className="flex items-center justify-center gap-3">
           <Button onClick={onLogin} size="sm">
-            깃허브로 로그인
+            깃허브로 시작하기
           </Button>
         </div>
       }
@@ -42,6 +43,12 @@ const LoginModal: FC<Props> = ({ onClose }) => {
             <span>👨‍💻</span>
             <span>
               30여개 이상 언어의 코드블록을 채팅방에서 올릴 수 있습니다!
+            </span>
+          </div>
+          <div className="flex gap-2 rounded-lg bg-blue-50 p-4">
+            <span>👨‍👨‍👦‍👦</span>
+            <span>
+              다른 업계의 개발자들은 어떤 얘기들을 하는지 궁금하다면? ↓
             </span>
           </div>
         </div>

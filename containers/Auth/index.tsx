@@ -17,40 +17,39 @@ const Auth: FC<Props> = ({ children }) => {
   const inquireUser = async () => {
     const user = supabase.auth.user()
     if (!user) return
-    const { data, error } = await supabase
-      .from<Table.User>('users')
-      .select('*')
-      .eq('id', user.id)
-    if (error) {
-      console.log('components/Auth inquireUser')
-      console.error(error)
-      return
+    try {
+      const { data } = await supabase
+        .from<Table.User>('users')
+        .select('*')
+        .eq('id', user.id)
+      if (!data?.length) createUser()
+      else if (!data[0].is_agree_to_terms)
+        setState({ isAgreeToTermsOpen: true })
+    } catch (err) {
+      console.error(err)
     }
-    if (!data.length) createUser()
-    else if (!data[0].is_agree_to_terms) setState({ isAgreeToTermsOpen: true })
   }
 
   const createUser = async () => {
     const user = supabase.auth.user()
     if (!user) return
-    const { error } = await supabase.from<Table.User>('users').insert({
-      id: user.id,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-      email: user.email,
-      avatar_url: user.user_metadata.avatar_url || '',
-      nickname:
-        user.user_metadata.full_name ||
-        user.email?.slice(0, user.email?.indexOf('@')) ||
-        '',
-      is_agree_to_terms: false
-    })
-    if (error) {
-      console.log('component/Auth createUser')
-      console.error(error)
-      return
+    try {
+      await supabase.from<Table.User>('users').insert({
+        id: user.id,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+        email: user.email,
+        avatar_url: user.user_metadata.avatar_url || '',
+        nickname:
+          user.user_metadata.full_name ||
+          user.email?.slice(0, user.email?.indexOf('@')) ||
+          '',
+        is_agree_to_terms: false
+      })
+      setState({ isAgreeToTermsOpen: true })
+    } catch (err) {
+      console.error(err)
     }
-    setState({ isAgreeToTermsOpen: true })
   }
 
   const updateUser = async () => {
@@ -59,37 +58,36 @@ const Auth: FC<Props> = ({ children }) => {
       setUser(null)
       return
     }
-    const { error } = await supabase
-      .from<Table.User>('users')
-      .update({
+    try {
+      await supabase
+        .from<Table.User>('users')
+        .update({
+          id: user.id,
+          email: user.email,
+          avatar_url: user.user_metadata.avatar_url || '',
+          nickname:
+            user.user_metadata.full_name ||
+            user.email?.slice(0, user.email?.indexOf('@')) ||
+            '',
+          created_at: user.created_at,
+          updated_at: user.updated_at
+        })
+        .eq('id', user.id)
+      setUser({
         id: user.id,
-        email: user.email,
+        email: user.email || '',
         avatar_url: user.user_metadata.avatar_url || '',
         nickname:
           user.user_metadata.full_name ||
           user.email?.slice(0, user.email?.indexOf('@')) ||
           '',
         created_at: user.created_at,
-        updated_at: user.updated_at
+        last_sign_in_at: user.last_sign_in_at || '',
+        provider: user.app_metadata.provider || ''
       })
-      .eq('id', user.id)
-    if (error) {
-      console.log('component/Auth updateUser')
-      console.error(error)
-      return
+    } catch (err) {
+      console.error(err)
     }
-    setUser({
-      id: user.id,
-      email: user.email || '',
-      avatar_url: user.user_metadata.avatar_url || '',
-      nickname:
-        user.user_metadata.full_name ||
-        user.email?.slice(0, user.email?.indexOf('@')) ||
-        '',
-      created_at: user.created_at,
-      last_sign_in_at: user.last_sign_in_at || '',
-      provider: user.app_metadata.provider || ''
-    })
   }
 
   useEffect(() => {

@@ -14,13 +14,13 @@ const MyInfoModal: FC<Props> = ({ isOpen, onClose }) => {
   const [user, , resetUser] = useUser()
 
   const onLogout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error(error)
-      return
+    try {
+      await supabase.auth.signOut()
+      resetUser()
+      onClose()
+    } catch (err) {
+      console.error(err)
     }
-    resetUser()
-    onClose()
   }
   return (
     <Modal

@@ -17,65 +17,65 @@ const Menu: FC<Props> = () => {
   const [roomList, setRoomList] = useRecoilState(roomListState)
 
   const getRooms = useCallback(async () => {
-    const { data, error } = await supabase
-      .from<Table.Room & { chats: Array<Table.Chat & { user: Table.User }> }>(
-        'rooms'
-      )
-      .select(
-        `
+    try {
+      const { data } = await supabase
+        .from<Table.Room & { chats: Array<Table.Chat & { user: Table.User }> }>(
+          'rooms'
+        )
+        .select(
+          `
       *,
       chats (
         *,
         user:user_id (*)
       )
     `
-      )
-      .order('name')
-    if (error) {
-      console.log('getRooms error')
-      console.error(error)
-      return
-    }
-    setRoomList(
-      data.map((item) => ({
-        ...item,
-        chats: item.chats.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
-      }))
-    )
+        .order('name')
+      setRoomList(
+        data?.map((item) => ({
+          ...item,
+          chats: item.chats.sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          )
+        })) || []
+      )
+    } catch (err) {
+      console.error(err)
+    }
   }, [])
 
   const getChat = async () => {
     if (!chat) return
     const index = roomList.findIndex((room) => room.id === chat.room_id)
-    const { data: user, error } = await supabase
-      .from<Table.User>('users')
-      .select('*')
-      .eq('id', chat.user_id)
-      .single()
-    if (error) {
-      console.log('subscription error')
-      console.error(error)
-      return
-    }
-    setRoomList([
-      ...roomList.slice(0, index),
-      {
-        ...roomList[index],
+    try {
+      const { data: user } = await supabase
+        .from<Table.User>('users')
+        .select('*')
+        .eq('id', chat.user_id)
+        .single()
+      if (!user) return
+      setRoomList([
+        ...roomList.slice(0, index),
+        {
+          ...roomList[index],
 
-        chats: [
-          { ...chat, isNotChecked: true, user },
-          ...roomList[index].chats
-        ],
-        ...(query.name !== roomList[index].name
-          ? { lastChat: chat.content }
-          : {})
-      },
-      ...roomList.slice(index + 1)
-    ])
-    setState({ chat: null })
+          chats: [
+            { ...chat, isNotChecked: true, user },
+            ...roomList[index].chats
+          ],
+          ...(query.name !== roomList[index].name
+            ? { lastChat: chat.content }
+            : {})
+        },
+        ...roomList.slice(index + 1)
+      ])
+      setState({ chat: null })
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   useEffect(() => {

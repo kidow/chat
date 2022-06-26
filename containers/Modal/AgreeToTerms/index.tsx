@@ -23,18 +23,17 @@ const AgreeToTermsModal: FC<Props> = ({ isOpen, onClose }) => {
       return
     }
     setState({ isLoading: true })
-    const { error } = await supabase
-      .from<Table.User>('users')
-      .update({ is_agree_to_terms: true })
-      .eq('id', user.id)
-    if (error) {
-      console.log('containers/Modal/AgreeToTerms')
-      console.error(error)
-    } else {
+    try {
+      await supabase
+        .from<Table.User>('users')
+        .update({ is_agree_to_terms: true })
+        .eq('id', user.id)
       toast.success('환영합니다! 앞으로 좋은 얘기들을 나눠 보아요 :)')
       onClose()
+      setState({ isLoading: false })
+    } catch (err) {
+      console.error(err)
     }
-    setState({ isLoading: false })
   }
   return (
     <Modal
