@@ -39,5 +39,6 @@ export enum LANGUAGE {
 export enum Event {
   Toast = 'toast',
   Backdrop = 'backdrop',
-  Login = 'login'
+  Login = 'modal:login',
+  MyInfo = 'modal:myinfo'
 }
