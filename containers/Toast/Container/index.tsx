@@ -57,6 +57,7 @@ const ToastContainer: FC<Props> = ({ position = 'top-right' }) => {
         {list.map((item, key) => (
           <Toast
             key={key}
+            position="top-right"
             message={item.message}
             type={item.type}
             onRemove={() =>

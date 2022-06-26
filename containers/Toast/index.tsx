@@ -13,7 +13,8 @@ import ToastContainer from './Container'
 
 export interface Props {
   message: string
-  type: 'success' | 'info' | 'warn' | 'error'
+  type: NToast.Type
+  position: NToast.Position
   autoClose?: number | false
   onRemove: () => void
 }
@@ -68,7 +69,7 @@ const Toast: IToast = ({
 
   return (
     <div
-      className="relative z-[9999] w-80 cursor-pointer rounded bg-white p-2"
+      className="relative z-[9999] w-80 animate-bounce-in-right cursor-pointer rounded bg-white p-2"
       onClick={onRemove}
       style={{
         boxShadow: '0 1px 10px 0 rgb(0 0 0 / 10%), 0 2px 15px 0 rgb(0 0 0 / 5%)'
