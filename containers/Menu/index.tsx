@@ -24,14 +24,15 @@ const Menu: FC<Props> = () => {
         )
         .select(
           `
-      *,
-      chats (
-        *,
-        user:user_id (*)
-      )
-    `
+          *,
+          chats (
+            *,
+            user:user_id (*)
+          )
+        `
         )
         .order('name')
+        .limit(50, { foreignTable: 'chats' })
       setRoomList(
         data?.map((item) => ({
           ...item,

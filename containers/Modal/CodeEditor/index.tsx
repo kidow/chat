@@ -1,11 +1,19 @@
-import { useMemo } from 'react'
 import type { FC } from 'react'
 import { Modal } from 'containers'
 import Editor from '@monaco-editor/react'
 import TextareaAutosize from 'react-textarea-autosize'
 import { isMobile } from 'react-device-detect'
 import { Button, Select } from 'components'
-import { enumToOptions, LANGUAGE, useObjectState, useUser } from 'services'
+import {
+  enumToOptions,
+  LANGUAGE,
+  roomListState,
+  supabase,
+  useObjectState,
+  useUser
+} from 'services'
+import { useRouter } from 'next/router'
+import { useRecoilValue } from 'recoil'
 
 export interface Props extends ModalProps {
   content?: string
@@ -28,12 +36,31 @@ const CodeEditorModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
       codeBlock: props.codeBlock || '',
       isSubmitting: false
     })
+  const { query } = useRouter()
+  const [{ isLoggedIn, id }] = useUser()
+  const roomList = useRecoilValue(roomListState)
 
-  const [user] = useUser()
+  const create = async () => {
+    if (!window.confirm('작성하시겠습니까?')) return
+    setState({ isSubmitting: true })
+    try {
+      await supabase.from<Table.Chat>('chats').insert({
+        content,
+        user_id: id,
+        code_block: codeBlock,
+        language,
+        room_name: query.name as string,
+        room_id: roomList.find((room) => room.name === (query.name as string))
+          ?.id
+      })
+      onClose()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setState({ isSubmitting: false })
+    }
+  }
 
-  const create = async () => {}
-
-  const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
   return (
     <Modal
       isOpen={isOpen}
@@ -66,6 +93,7 @@ const CodeEditorModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
             loading={isSubmitting}
             theme="primary"
             shape="outlined"
+            onClick={create}
             disabled={!content || !isLoggedIn}
           >
             작성

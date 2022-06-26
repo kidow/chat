@@ -1,15 +1,13 @@
 import type { FC } from 'react'
 import { Modal } from 'containers'
 import { Button } from 'components'
-import { isLoginOpenState, supabase } from 'services'
-import { useRecoilValue } from 'recoil'
+import { supabase } from 'services'
 
 export interface Props extends ModalProps {}
 interface State {}
 
-const LoginModal: FC<Props> = ({ onClose }) => {
-  const isLoginOpen = useRecoilValue(isLoginOpenState)
-  if (!isLoginOpen) return null
+const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null
 
   const onLogin = async () => {
     try {
@@ -20,7 +18,7 @@ const LoginModal: FC<Props> = ({ onClose }) => {
   }
   return (
     <Modal
-      isOpen={isLoginOpen}
+      isOpen={isOpen}
       onClose={onClose}
       title="로그인하기"
       description="커디에 오신 것을 환영합니다! 👋"

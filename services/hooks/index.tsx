@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil'
-import { userState, backdropState } from 'services'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { userState, isLoggedInState, EventListener, Event } from 'services'
 import type { SetterOrUpdater, Resetter } from 'recoil'
 
 export function useObjectState<T>(
@@ -58,18 +58,42 @@ export function useObjectState<T>(
 }
 
 export const useUser = (): [
-  IUser | null,
-  SetterOrUpdater<IUser | null>,
+  IUser & { isLoggedIn: boolean },
+  SetterOrUpdater<IUser>,
   Resetter
 ] => {
   const user = useRecoilValue(userState)
+  const isLoggedIn = useRecoilValue(isLoggedInState)
   const setUser = useSetRecoilState(userState)
-  const resetUser = useResetRecoilState(userState)
-  return [user, setUser, resetUser]
+  const resetUser = () =>
+    setUser({
+      id: '',
+      email: '',
+      avatar_url: '',
+      nickname: '',
+      created_at: '',
+      last_sign_in_at: '',
+      provider: ''
+    })
+
+  return [
+    {
+      id: user?.id || '',
+      email: user?.email || '',
+      avatar_url: user?.avatar_url || '',
+      nickname: user?.nickname || '',
+      created_at: user?.created_at || '',
+      last_sign_in_at: user?.last_sign_in_at || '',
+      provider: user?.provider || '',
+      isLoggedIn
+    },
+    setUser,
+    resetUser
+  ]
 }
 
 export const useBackdrop = () => {
-  const setIsOpen = useSetRecoilState(backdropState)
-  const backdrop = (boolean: boolean) => setIsOpen(boolean)
+  const backdrop = (isOpen: boolean) =>
+    EventListener.emit(Event.Backdrop, { isOpen })
   return backdrop
 }

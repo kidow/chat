@@ -1,18 +1,28 @@
 import { useEffect } from 'react'
 import type { FC } from 'react'
-import { supabase, useObjectState, useUser } from 'services'
+import {
+  Event,
+  EventListener,
+  supabase,
+  useObjectState,
+  useUser
+} from 'services'
 import { Modal } from 'containers'
 
 export interface Props {}
 interface State {
   isAgreeToTermsOpen: boolean
+  isLoginOpen: boolean
 }
 
 const Auth: FC<Props> = ({ children }) => {
-  const [{ isAgreeToTermsOpen }, setState] = useObjectState<State>({
-    isAgreeToTermsOpen: false
-  })
-  const [, setUser] = useUser()
+  const [{ isAgreeToTermsOpen, isLoginOpen }, setState] = useObjectState<State>(
+    {
+      isAgreeToTermsOpen: false,
+      isLoginOpen: false
+    }
+  )
+  const [{ isLoggedIn }, setUser, resetUser] = useUser()
 
   const inquireUser = async () => {
     const user = supabase.auth.user()
@@ -55,7 +65,7 @@ const Auth: FC<Props> = ({ children }) => {
   const updateUser = async () => {
     const user = supabase.auth.user()
     if (!user) {
-      setUser(null)
+      resetUser()
       return
     }
     try {
@@ -110,7 +120,7 @@ const Auth: FC<Props> = ({ children }) => {
         })
         inquireUser()
       }
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') setUser(null)
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') resetUser()
       if (event === 'USER_UPDATED') updateUser()
     })
     const user = supabase.auth.user()
@@ -128,9 +138,20 @@ const Auth: FC<Props> = ({ children }) => {
       provider: user.app_metadata.provider || ''
     })
   }, [])
+
+  useEffect(() => {
+    if (!isLoginOpen)
+      EventListener.once(Event.Login, ({ detail }: any) =>
+        setState({ isLoginOpen: detail })
+      )
+  }, [isLoginOpen])
   return (
     <>
       {children}
+      <Modal.Login
+        isOpen={isLoginOpen}
+        onClose={() => setState({ isLoginOpen: false })}
+      />
       <Modal.AgreeToTerms
         isOpen={isAgreeToTermsOpen}
         onClose={() => setState({ isAgreeToTermsOpen: false })}

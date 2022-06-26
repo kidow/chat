@@ -1,6 +1,5 @@
 export { default as Spinner } from './Spinner'
 export { default as Button } from './Button'
-export { default as Backdrop } from './Backdrop'
 export { default as Checkbox } from './Checkbox'
 export { default as SEO } from './SEO'
 export { default as IconButton } from './IconButton'

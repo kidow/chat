@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import type { FC } from 'react'
 import { Spinner } from 'components'
 import { createPortal } from 'react-dom'
-import { EventListener } from 'services'
+import { EventListener, Event } from 'services'
 
 const Backdrop: FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -17,8 +17,8 @@ const Backdrop: FC = () => {
   )
 
   useEffect(() => {
-    EventListener.add('backdrop', onBackdrop)
-    return () => EventListener.remove('backdrop', onBackdrop)
+    EventListener.add(Event.Backdrop, onBackdrop)
+    return () => EventListener.remove(Event.Backdrop, onBackdrop)
   }, [])
   if (!isOpen) return null
   return createPortal(

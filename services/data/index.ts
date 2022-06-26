@@ -37,5 +37,7 @@ export enum LANGUAGE {
 }
 
 export enum Event {
-  Toast = 'toast'
+  Toast = 'toast',
+  Backdrop = 'backdrop',
+  Login = 'login'
 }

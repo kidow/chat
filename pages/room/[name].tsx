@@ -3,7 +3,8 @@ import { ArrowSmUpIcon, CodeIcon } from '@heroicons/react/outline'
 import TextareaAutosize from 'react-textarea-autosize'
 import classnames from 'classnames'
 import {
-  isLoginOpenState,
+  Event,
+  EventListener,
   roomListState,
   supabase,
   useObjectState,
@@ -11,7 +12,7 @@ import {
 } from 'services'
 import { useEffect, useMemo, Fragment } from 'react'
 import type { KeyboardEvent } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { useRouter } from 'next/router'
 import { IconButton, SEO, Spinner } from 'components'
 import dayjs from 'dayjs'
@@ -35,8 +36,7 @@ const RoomNamePage: NextPage = () => {
     isSubmitting: false,
     isCodeEditorOpen: false
   })
-  const setIsLoginOpen = useSetRecoilState(isLoginOpenState)
-  const [user] = useUser()
+  const [{ isLoggedIn, id }] = useUser()
   const roomList = useRecoilValue(roomListState)
   const { asPath, query, replace } = useRouter()
 
@@ -51,7 +51,7 @@ const RoomNamePage: NextPage = () => {
   const createChat = async () => {
     if (isSubmitting) return
     if (!isLoggedIn) {
-      setIsLoginOpen(true)
+      EventListener.emit<boolean>(Event.Login, true)
       return
     }
     if (!content || !roomId) return
@@ -60,7 +60,7 @@ const RoomNamePage: NextPage = () => {
       await supabase.from<Table.Chat>('chats').insert({
         room_name: query.name as string,
         content,
-        user_id: user?.id,
+        user_id: id,
         room_id: roomId
       })
       setState({ content: '', isSubmitting: false })
@@ -98,8 +98,6 @@ const RoomNamePage: NextPage = () => {
     }
   }
 
-  const isLoggedIn: boolean = useMemo(() => !!user?.id, [user])
-
   const chatList: Array<Table.Chat & { user: Table.User }> = useMemo(() => {
     if (typeof query.name !== 'string' || !query.name) return []
     const room = roomList.find((room) => room.name === query.name)
@@ -126,7 +124,7 @@ const RoomNamePage: NextPage = () => {
           ) : !!chatList.length ? (
             chatList.map((item, key, arr) => (
               <Fragment key={item.id}>
-                {item.user_id === user?.id ? (
+                {item.user_id === id ? (
                   <div className="flex justify-end">
                     <div className="rounded-lg bg-blue-50 px-3 py-2">
                       {item.content}
@@ -186,7 +184,7 @@ const RoomNamePage: NextPage = () => {
               onKeyDown={onEnter}
               readOnly={!isLoggedIn}
               onClick={() => {
-                if (!isLoggedIn) setIsLoginOpen(true)
+                if (!isLoggedIn) EventListener.emit(Event.Login, true)
               }}
             />
             <IconButton onClick={() => setState({ isCodeEditorOpen: true })}>

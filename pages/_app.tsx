@@ -1,8 +1,7 @@
 import 'styles/globals.css'
 import App from 'next/app'
 import { ErrorInfo } from 'react'
-import { Backdrop } from 'components'
-import { Layout, Auth, Toast } from 'containers'
+import { Layout, Auth, Toast, Backdrop } from 'containers'
 import { RecoilRoot } from 'recoil'
 import 'dayjs/locale/ko'
 
@@ -32,8 +31,8 @@ class MyApp extends App<Props, {}, State> {
               <Component {...pageProps} />
             </Layout>
           </Auth>
-          <Backdrop />
         </RecoilRoot>
+        <Backdrop />
         <Toast.Container />
       </>
     )
