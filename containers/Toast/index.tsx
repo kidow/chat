@@ -10,6 +10,7 @@ import {
   XIcon
 } from '@heroicons/react/solid'
 import ToastContainer from './Container'
+import ToastWrapper from './Wrapper'
 
 export interface Props {
   message: string
@@ -20,6 +21,7 @@ export interface Props {
 }
 interface IToast extends FC<Props> {
   Container: typeof ToastContainer
+  Wrapper: typeof ToastWrapper
 }
 interface State {
   progress: number
@@ -30,6 +32,7 @@ const Toast: IToast = ({
   message,
   type,
   autoClose = 5000,
+  position,
   ...props
 }) => {
   const [{ progress }, setState] = useObjectState<State>({
@@ -69,7 +72,17 @@ const Toast: IToast = ({
 
   return (
     <div
-      className="relative z-[9999] w-80 animate-bounce-in-right cursor-pointer rounded bg-white p-2"
+      className={classnames(
+        'relative z-[9999] w-80 cursor-pointer rounded bg-white p-2',
+        {
+          'animate-bounce-in-right':
+            position === 'top-right' || position === 'bottom-right',
+          'animate-bounce-in-left':
+            position === 'top-left' || position === 'bottom-left',
+          'animate-bounce-in-up': position === 'bottom-center',
+          'animate-bounce-in-down': position === 'top-center'
+        }
+      )}
       onClick={onRemove}
       style={{
         boxShadow: '0 1px 10px 0 rgb(0 0 0 / 10%), 0 2px 15px 0 rgb(0 0 0 / 5%)'
@@ -123,5 +136,6 @@ const Toast: IToast = ({
 }
 
 Toast.Container = ToastContainer
+Toast.Wrapper = ToastWrapper
 
 export default Toast

@@ -135,7 +135,9 @@ module.exports = {
         'bounce-in-right': 'bounce-in-right 0.7s linear',
         'bounce-out-right': 'bounce-out-right 0.7s linear',
         'bounce-in-left': 'bounce-in-left 0.7s linear',
-        'bounce-out-left': 'bounce-out-left 0.7s linear'
+        'bounce-out-left': 'bounce-out-left 0.7s linear',
+        'bounce-in-up': 'bounce-in-up 0.7s linear',
+        'bounce-in-down': 'bounce-in-down 0.7s linear'
       }
     }
   },

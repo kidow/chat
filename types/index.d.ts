@@ -62,11 +62,13 @@ namespace NToast {
   interface State {
     message: string
     type: NToast.Type
+    position: NToast.Position
   }
   interface Props {}
   interface Emit {
     message: string
     type: NToast.Type
+    position: NToast.Position
   }
   type Type = 'success' | 'info' | 'warn' | 'error'
   type Position =

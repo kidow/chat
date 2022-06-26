@@ -22,25 +22,57 @@ const HomePage: NextPage = () => {
         </button>
         <button
           onClick={() =>
-            toast.success(`${Math.random().toString(36).slice(2)}`)
+            toast.success(`${Math.random().toString(36).slice(2)}`, {
+              position: 'top-left'
+            })
           }
         >
-          Success
+          TopLeft
         </button>
         <button
-          onClick={() => toast.info(`${Math.random().toString(36).slice(2)}`)}
+          onClick={() =>
+            toast.info(`${Math.random().toString(36).slice(2)}`, {
+              position: 'top-center'
+            })
+          }
         >
-          Info
+          TopCenter
         </button>
         <button
-          onClick={() => toast.warn(`${Math.random().toString(36).slice(2)}`)}
+          onClick={() =>
+            toast.info(`${Math.random().toString(36).slice(2)}`, {
+              position: 'top-right'
+            })
+          }
         >
-          Warn
+          TopRight
         </button>
         <button
-          onClick={() => toast.error(`${Math.random().toString(36).slice(2)}`)}
+          onClick={() =>
+            toast.warn(`${Math.random().toString(36).slice(2)}`, {
+              position: 'bottom-left'
+            })
+          }
         >
-          Error
+          BottomLeft
+        </button>
+        <button
+          onClick={() =>
+            toast.warn(`${Math.random().toString(36).slice(2)}`, {
+              position: 'bottom-center'
+            })
+          }
+        >
+          BottomCenter
+        </button>
+        <button
+          onClick={() =>
+            toast.error(`${Math.random().toString(36).slice(2)}`, {
+              position: 'bottom-right'
+            })
+          }
+        >
+          BottomRight
         </button>
       </div>
     </>
