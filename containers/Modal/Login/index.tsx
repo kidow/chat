@@ -26,7 +26,7 @@ const LoginModal: FC<Props> = ({ onClose }) => {
       maxWidth="max-w-lg"
       footer={
         <div className="flex items-center justify-center gap-3">
-          <Button onClick={onLogin} shape="outlined" size="sm">
+          <Button onClick={onLogin} size="sm">
             깃허브로 로그인
           </Button>
         </div>
@@ -40,7 +40,9 @@ const LoginModal: FC<Props> = ({ onClose }) => {
         <div className="mt-5 space-y-2">
           <div className="flex gap-2 rounded-lg bg-blue-50 p-4">
             <span>👨‍💻</span>
-            <span>130여 언어의 코드블록을 채팅방에서 올릴 수 있습니다!</span>
+            <span>
+              30여개 이상 언어의 코드블록을 채팅방에서 올릴 수 있습니다!
+            </span>
           </div>
         </div>
       </div>

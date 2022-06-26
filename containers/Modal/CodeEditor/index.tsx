@@ -1,4 +1,5 @@
-import { FC, useMemo } from 'react'
+import { useMemo } from 'react'
+import type { FC } from 'react'
 import { Modal } from 'containers'
 import Editor from '@monaco-editor/react'
 import TextareaAutosize from 'react-textarea-autosize'
@@ -86,7 +87,7 @@ const CodeEditorModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
           />
         )}
         <TextareaAutosize
-          className="w-full px-2 py-1 border rounded-lg border-neutral-200"
+          className="w-full rounded-lg border border-neutral-200 px-2 py-1"
           spellCheck={false}
           value={content}
           name="content"
