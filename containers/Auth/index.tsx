@@ -9,7 +9,7 @@ import {
 } from 'services'
 import { Modal } from 'containers'
 
-export interface Props {}
+export interface Props extends ReactProps {}
 interface State {
   isAgreeToTermsOpen: boolean
   isLoginOpen: boolean

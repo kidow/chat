@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import { Menu, Header, Modal } from 'containers'
 import { Event, EventListener, useObjectState } from 'services'
 
-export interface Props {}
+export interface Props extends ReactProps {}
 interface State {
   isMyInfoOpen: boolean
 }

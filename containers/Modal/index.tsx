@@ -8,7 +8,7 @@ import AgreeToTermsModal from './AgreeToTerms'
 import CodeEditorModal from './CodeEditor'
 import { createPortal } from 'react-dom'
 
-interface Props extends ModalProps {}
+interface Props extends ModalProps, ReactProps {}
 interface IModal extends FC<Props> {
   Login: typeof LoginModal
   MyInfo: typeof MyInfoModal

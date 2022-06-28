@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import classnames from 'classnames'
 import { createPortal } from 'react-dom'
 
-export interface Props {
+export interface Props extends ReactProps {
   position: NToast.Position
 }
 interface State {}
