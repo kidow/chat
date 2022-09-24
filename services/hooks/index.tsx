@@ -92,8 +92,4 @@ export const useUser = (): [
   ]
 }
 
-export const useBackdrop = () => {
-  const backdrop = (isOpen: boolean) =>
-    EventListener.emit(Event.Backdrop, { isOpen })
-  return backdrop
-}
+export const useStateDidUpdate = () => {}

@@ -20,6 +20,7 @@ export default class MyDocument extends Document {
           <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
           {/* <link rel="manifest" href="/manifest.json" /> */}
           <meta name="msapplication-TileColor" content="#3B82F6" />
+          <script async type="text/javascript" src="/usersnap.js" />
         </Head>
         <body>
           <Main />
